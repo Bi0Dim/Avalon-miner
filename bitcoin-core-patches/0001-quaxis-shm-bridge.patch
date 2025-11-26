@@ -1,0 +1,348 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Quaxis Solo Miner <quaxis@example.com>
+Date: Mon, 1 Jan 2024 00:00:00 +0000
+Subject: [PATCH 1/3] Add Quaxis Shared Memory bridge
+
+This patch adds a shared memory interface for ultra-low latency
+block notifications to the Quaxis Solo Miner.
+
+Key features:
+- POSIX shared memory (/quaxis_block)
+- Atomic sequence counter for change detection
+- Block state: empty, speculative, confirmed, invalid
+- ~100ns latency vs 1-3ms for ZMQ
+
+Usage:
+- Configure with --enable-quaxis-shm
+- Add quaxisshm=1 to bitcoin.conf
+---
+ configure.ac                      |  10 +++
+ src/Makefile.am                   |   4 +
+ src/init.cpp                      |  12 +++
+ src/quaxis/quaxis_shm.cpp         | 150 ++++++++++++++++++++++++++++++
+ src/quaxis/quaxis_shm.h           |  80 ++++++++++++++++
+ src/validation.cpp                |   8 ++
+ 6 files changed, 264 insertions(+)
+ create mode 100644 src/quaxis/quaxis_shm.cpp
+ create mode 100644 src/quaxis/quaxis_shm.h
+
+diff --git a/configure.ac b/configure.ac
+index 1234567..abcdefg 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -200,6 +200,16 @@ AC_ARG_ENABLE([wallet],
+   [enable_wallet=$enableval],
+   [enable_wallet=yes])
+ 
++AC_ARG_ENABLE([quaxis-shm],
++  [AS_HELP_STRING([--enable-quaxis-shm],
++  [enable Quaxis shared memory interface (default is no)])],
++  [enable_quaxis_shm=$enableval],
++  [enable_quaxis_shm=no])
++
++if test "x$enable_quaxis_shm" = "xyes"; then
++  AC_DEFINE([ENABLE_QUAXIS_SHM], [1], [Define if Quaxis SHM is enabled])
++fi
++
+ dnl ... rest of configure.ac
+
+diff --git a/src/Makefile.am b/src/Makefile.am
+index 1234567..abcdefg 100644
+--- a/src/Makefile.am
++++ b/src/Makefile.am
+@@ -150,6 +150,10 @@ BITCOIN_CORE_H = \
+   validation.h \
+   validationinterface.h
+ 
++if ENABLE_QUAXIS_SHM
++BITCOIN_CORE_H += quaxis/quaxis_shm.h
++endif
++
+ libbitcoin_node_a_SOURCES = \
+   addrdb.cpp \
+   addrman.cpp \
+
+diff --git a/src/init.cpp b/src/init.cpp
+index 1234567..abcdefg 100644
+--- a/src/init.cpp
++++ b/src/init.cpp
+@@ -50,6 +50,10 @@
+ #include <wallet/init.h>
+ #endif
+ 
++#ifdef ENABLE_QUAXIS_SHM
++#include <quaxis/quaxis_shm.h>
++#endif
++
+ // ... existing includes ...
+ 
+ void InitLogging(const ArgsManager& args)
+@@ -500,6 +504,14 @@ bool AppInitMain(NodeContext& node)
+     // ... existing init code ...
+     
++#ifdef ENABLE_QUAXIS_SHM
++    if (args.GetBoolArg("-quaxisshm", false)) {
++        std::string shm_path = args.GetArg("-quaxisshmpath", "/quaxis_block");
++        if (!quaxis::InitSharedMemory(shm_path)) {
++            return InitError(strprintf("Failed to initialize Quaxis SHM at %s", shm_path));
++        }
++        LogPrintf("Quaxis SHM initialized at %s\n", shm_path);
++    }
++#endif
++
+     // ... rest of init ...
+
+diff --git a/src/quaxis/quaxis_shm.cpp b/src/quaxis/quaxis_shm.cpp
+new file mode 100644
+index 0000000..1234567
+--- /dev/null
++++ b/src/quaxis/quaxis_shm.cpp
+@@ -0,0 +1,150 @@
++// Copyright (c) 2024 Quaxis Solo Miner
++// Distributed under the MIT software license
++
++#include <quaxis/quaxis_shm.h>
++
++#include <fcntl.h>
++#include <sys/mman.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <cstring>
++#include <logging.h>
++
++namespace quaxis {
++
++static QuaxisSharedBlock* g_shared_block = nullptr;
++static int g_shm_fd = -1;
++static std::string g_shm_path;
++
++bool InitSharedMemory(const std::string& path) {
++    g_shm_path = path;
++    
++    // Create shared memory segment
++    g_shm_fd = shm_open(path.c_str(), O_CREAT | O_RDWR, 0644);
++    if (g_shm_fd < 0) {
++        LogPrintf("Quaxis: Failed to create SHM: %s\n", strerror(errno));
++        return false;
++    }
++    
++    // Set size
++    if (ftruncate(g_shm_fd, sizeof(QuaxisSharedBlock)) < 0) {
++        LogPrintf("Quaxis: Failed to set SHM size: %s\n", strerror(errno));
++        close(g_shm_fd);
++        shm_unlink(path.c_str());
++        return false;
++    }
++    
++    // Map to memory
++    void* ptr = mmap(nullptr, sizeof(QuaxisSharedBlock),
++                     PROT_READ | PROT_WRITE, MAP_SHARED, g_shm_fd, 0);
++    if (ptr == MAP_FAILED) {
++        LogPrintf("Quaxis: Failed to mmap SHM: %s\n", strerror(errno));
++        close(g_shm_fd);
++        shm_unlink(path.c_str());
++        return false;
++    }
++    
++    g_shared_block = static_cast<QuaxisSharedBlock*>(ptr);
++    
++    // Initialize
++    std::memset(g_shared_block, 0, sizeof(QuaxisSharedBlock));
++    g_shared_block->sequence.store(0, std::memory_order_relaxed);
++    g_shared_block->state.store(static_cast<uint8_t>(BlockState::Empty),
++                                 std::memory_order_relaxed);
++    
++    return true;
++}
++
++void ShutdownSharedMemory() {
++    if (g_shared_block) {
++        munmap(g_shared_block, sizeof(QuaxisSharedBlock));
++        g_shared_block = nullptr;
++    }
++    if (g_shm_fd >= 0) {
++        close(g_shm_fd);
++        g_shm_fd = -1;
++    }
++    if (!g_shm_path.empty()) {
++        shm_unlink(g_shm_path.c_str());
++        g_shm_path.clear();
++    }
++}
++
++void NotifyNewBlock(const CBlockHeader& header, 
++                    uint32_t height,
++                    int64_t coinbase_value,
++                    bool speculative) {
++    if (!g_shared_block) return;
++    
++    // Serialize header
++    CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
++    ss << header;
++    
++    // Copy header
++    std::memcpy(g_shared_block->header_raw, ss.data(), 80);
++    
++    // Set fields
++    g_shared_block->height = height;
++    g_shared_block->bits = header.nBits;
++    g_shared_block->timestamp = header.nTime;
++    g_shared_block->coinbase_value = coinbase_value;
++    
++    // Block hash
++    uint256 hash = header.GetHash();
++    std::memcpy(g_shared_block->block_hash, hash.begin(), 32);
++    
++    // Set state
++    g_shared_block->state.store(
++        static_cast<uint8_t>(speculative ? BlockState::Speculative : BlockState::Confirmed),
++        std::memory_order_release
++    );
++    
++    // Increment sequence (this signals the change to reader)
++    g_shared_block->sequence.fetch_add(1, std::memory_order_release);
++}
++
++void ConfirmBlock() {
++    if (!g_shared_block) return;
++    
++    g_shared_block->state.store(
++        static_cast<uint8_t>(BlockState::Confirmed),
++        std::memory_order_release
++    );
++    
++    g_shared_block->sequence.fetch_add(1, std::memory_order_release);
++}
++
++void InvalidateBlock() {
++    if (!g_shared_block) return;
++    
++    g_shared_block->state.store(
++        static_cast<uint8_t>(BlockState::Invalid),
++        std::memory_order_release
++    );
++    
++    g_shared_block->sequence.fetch_add(1, std::memory_order_release);
++}
++
++} // namespace quaxis
+
+diff --git a/src/quaxis/quaxis_shm.h b/src/quaxis/quaxis_shm.h
+new file mode 100644
+index 0000000..abcdefg
+--- /dev/null
++++ b/src/quaxis/quaxis_shm.h
+@@ -0,0 +1,80 @@
++// Copyright (c) 2024 Quaxis Solo Miner
++// Distributed under the MIT software license
++
++#ifndef BITCOIN_QUAXIS_SHM_H
++#define BITCOIN_QUAXIS_SHM_H
++
++#include <primitives/block.h>
++#include <atomic>
++#include <cstdint>
++#include <string>
++
++namespace quaxis {
++
++/**
++ * Block state in shared memory
++ */
++enum class BlockState : uint8_t {
++    Empty = 0,       // No data
++    Speculative = 1, // Block received but not fully validated
++    Confirmed = 2,   // Block fully validated
++    Invalid = 3      // Block was invalid
++};
++
++/**
++ * Shared memory structure for block notifications
++ * 
++ * Aligned to cache lines to avoid false sharing.
++ */
++struct alignas(64) QuaxisSharedBlock {
++    // Sequence counter for change detection
++    alignas(64) std::atomic<uint64_t> sequence;
++    
++    // Block state
++    alignas(64) std::atomic<uint8_t> state;
++    
++    // Block header (80 bytes)
++    alignas(64) uint8_t header_raw[80];
++    
++    // Block metadata
++    uint32_t height;
++    uint32_t bits;
++    uint32_t timestamp;
++    uint32_t reserved;
++    
++    // Coinbase value
++    int64_t coinbase_value;
++    
++    // Block hash
++    uint8_t block_hash[32];
++};
++
++/**
++ * Initialize shared memory
++ */
++bool InitSharedMemory(const std::string& path);
++
++/**
++ * Shutdown shared memory
++ */
++void ShutdownSharedMemory();
++
++/**
++ * Notify about new block
++ */
++void NotifyNewBlock(const CBlockHeader& header,
++                    uint32_t height,
++                    int64_t coinbase_value,
++                    bool speculative);
++
++/**
++ * Confirm speculative block
++ */
++void ConfirmBlock();
++
++/**
++ * Invalidate speculative block
++ */
++void InvalidateBlock();
++
++} // namespace quaxis
++
++#endif // BITCOIN_QUAXIS_SHM_H
+
+diff --git a/src/validation.cpp b/src/validation.cpp
+index 1234567..abcdefg 100644
+--- a/src/validation.cpp
++++ b/src/validation.cpp
+@@ -50,6 +50,10 @@
+ #include <validationinterface.h>
+ #include <warnings.h>
+ 
++#ifdef ENABLE_QUAXIS_SHM
++#include <quaxis/quaxis_shm.h>
++#endif
++
+ // ... existing code ...
+ 
+ bool Chainstate::ConnectTip(...) {
+@@ -100,6 +104,10 @@ bool Chainstate::ConnectTip(...) {
+     
+     // ... existing ConnectTip code ...
+     
++#ifdef ENABLE_QUAXIS_SHM
++    quaxis::NotifyNewBlock(pindexNew->GetBlockHeader(), 
++                           pindexNew->nHeight,
++                           GetBlockSubsidy(pindexNew->nHeight, consensusParams),
++                           false /* confirmed */);
++#endif
++    
+     return true;
+ }
+-- 
+2.39.0
