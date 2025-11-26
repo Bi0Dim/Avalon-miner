@@ -1,0 +1,5 @@
+if(EXISTS "/home/runner/work/Avalon-miner/Avalon-miner/_codeql_build_dir/tests/quaxis_tests[1]_tests.cmake")
+  include("/home/runner/work/Avalon-miner/Avalon-miner/_codeql_build_dir/tests/quaxis_tests[1]_tests.cmake")
+else()
+  add_test(quaxis_tests_NOT_BUILT quaxis_tests_NOT_BUILT)
+endif()

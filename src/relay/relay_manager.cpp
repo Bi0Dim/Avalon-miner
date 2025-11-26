@@ -209,11 +209,13 @@ RelayManager::RelayManager(const RelayConfig& config)
     : impl_(std::make_unique<Impl>(config))
 {
     // Создаём пиры из конфигурации
+    // Конвертируем quaxis::RelayPeerConfig в relay::RelayPeerConfig
     for (const auto& peer_config : config.peers) {
         RelayPeerConfig cfg;
         cfg.host = peer_config.host;
         cfg.port = peer_config.port;
         cfg.trusted = peer_config.trusted;
+        // Остальные поля используют значения по умолчанию из RelayPeerConfig
         
         impl_->peers_.push_back(std::make_unique<RelayPeer>(cfg));
     }

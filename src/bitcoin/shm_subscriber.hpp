@@ -83,6 +83,8 @@ struct alignas(64) QuaxisSharedBlock {
     uint8_t block_hash[32];
 };
 
+// Размер структуры увеличен до 512 байт из-за выравнивания полей по 64-байтным cache lines
+// (alignas(64) на sequence, state и header_raw добавляет padding)
 static_assert(sizeof(QuaxisSharedBlock) <= 512, "QuaxisSharedBlock превышает 512 байт");
 
 // =============================================================================

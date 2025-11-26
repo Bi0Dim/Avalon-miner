@@ -339,7 +339,7 @@ std::optional<std::vector<uint8_t>> FecDecoder::get_first_n_bytes(std::size_t n)
         const std::size_t need = n - result.size();
         const std::size_t take = std::min(need, chunk.size());
         
-        result.insert(result.end(), chunk.begin(), chunk.begin() + static_cast<std::ptrdiff_t>(take));
+        result.insert(result.end(), chunk.begin(), chunk.begin() + take);
     }
     
     if (result.size() < n) {

@@ -9,6 +9,7 @@ add_executable(quaxis_tests
     test_block.cpp
     test_protocol.cpp
     test_target.cpp
+    test_relay.cpp
 )
 
 # Подключение зависимостей
@@ -18,6 +19,7 @@ target_link_libraries(quaxis_tests PRIVATE
     quaxis_bitcoin
     quaxis_mining
     quaxis_network
+    quaxis_relay
     GTest::gtest
     GTest::gtest_main
 )

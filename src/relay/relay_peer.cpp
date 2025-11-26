@@ -38,7 +38,8 @@ struct RelayPeer::Impl {
     /// @brief Время последнего keepalive
     std::chrono::steady_clock::time_point last_keepalive_time_;
     
-    /// @brief Мьютекс
+    /// @brief Мьютекс для защиты данных при многопоточном доступе
+    /// @note mutable позволяет использовать в const методах, таких как stats()
     mutable std::mutex mutex_;
     
     /**
