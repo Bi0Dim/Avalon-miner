@@ -120,6 +120,51 @@ Result<Config> Config::load(const std::filesystem::path& path) {
             }
         }
         
+        // === Секция [relay] ===
+        if (auto relay = table["relay"].as_table()) {
+            if (auto val = (*relay)["enabled"].value<bool>()) {
+                config.relay.enabled = *val;
+            }
+            if (auto val = (*relay)["local_port"].value<int64_t>()) {
+                config.relay.local_port = static_cast<uint16_t>(*val);
+            }
+            if (auto val = (*relay)["bandwidth_limit"].value<int64_t>()) {
+                config.relay.bandwidth_limit = static_cast<uint32_t>(*val);
+            }
+            if (auto val = (*relay)["reconstruction_timeout"].value<int64_t>()) {
+                config.relay.reconstruction_timeout = static_cast<uint32_t>(*val);
+            }
+            if (auto val = (*relay)["fec_enabled"].value<bool>()) {
+                config.relay.fec_enabled = *val;
+            }
+            if (auto val = (*relay)["fec_overhead"].value<double>()) {
+                config.relay.fec_overhead = *val;
+            }
+            
+            // Парсим пиры из [[relay.peers]]
+            if (auto peers = (*relay)["peers"].as_array()) {
+                for (const auto& peer_node : *peers) {
+                    if (auto peer_table = peer_node.as_table()) {
+                        RelayPeerConfig peer_config;
+                        
+                        if (auto host = (*peer_table)["host"].value<std::string>()) {
+                            peer_config.host = *host;
+                        }
+                        if (auto port = (*peer_table)["port"].value<int64_t>()) {
+                            peer_config.port = static_cast<uint16_t>(*port);
+                        }
+                        if (auto trusted = (*peer_table)["trusted"].value<bool>()) {
+                            peer_config.trusted = *trusted;
+                        }
+                        
+                        if (!peer_config.host.empty()) {
+                            config.relay.peers.push_back(std::move(peer_config));
+                        }
+                    }
+                }
+            }
+        }
+        
         return config;
         
     } catch (const toml::parse_error& e) {

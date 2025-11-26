@@ -1,2 +1,0 @@
-/usr/bin/ar qc libquaxis_mining.a CMakeFiles/quaxis_mining.dir/job_manager.cpp.o CMakeFiles/quaxis_mining.dir/template_cache.cpp.o CMakeFiles/quaxis_mining.dir/share_validator.cpp.o
-/usr/bin/ranlib libquaxis_mining.a

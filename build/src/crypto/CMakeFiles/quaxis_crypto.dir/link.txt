@@ -1,2 +1,0 @@
-/usr/bin/ar qc libquaxis_crypto.a CMakeFiles/quaxis_crypto.dir/sha256.cpp.o CMakeFiles/quaxis_crypto.dir/sha256_generic.cpp.o CMakeFiles/quaxis_crypto.dir/sha256_shani.cpp.o
-/usr/bin/ranlib libquaxis_crypto.a
