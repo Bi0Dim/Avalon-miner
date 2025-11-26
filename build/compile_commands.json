@@ -1,0 +1,176 @@
+[
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/core",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_core.dir/byte_order.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/core/byte_order.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/core/byte_order.cpp",
+  "output": "src/core/CMakeFiles/quaxis_core.dir/byte_order.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/core",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_core.dir/config.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/core/config.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/core/config.cpp",
+  "output": "src/core/CMakeFiles/quaxis_core.dir/config.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/crypto",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_crypto.dir/sha256.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/crypto/sha256.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/crypto/sha256.cpp",
+  "output": "src/crypto/CMakeFiles/quaxis_crypto.dir/sha256.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/crypto",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_crypto.dir/sha256_generic.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/crypto/sha256_generic.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/crypto/sha256_generic.cpp",
+  "output": "src/crypto/CMakeFiles/quaxis_crypto.dir/sha256_generic.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/crypto",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -msha -msse4.1 -o CMakeFiles/quaxis_crypto.dir/sha256_shani.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/crypto/sha256_shani.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/crypto/sha256_shani.cpp",
+  "output": "src/crypto/CMakeFiles/quaxis_crypto.dir/sha256_shani.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/bitcoin",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_bitcoin.dir/block.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/block.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/block.cpp",
+  "output": "src/bitcoin/CMakeFiles/quaxis_bitcoin.dir/block.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/bitcoin",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_bitcoin.dir/coinbase.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/coinbase.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/coinbase.cpp",
+  "output": "src/bitcoin/CMakeFiles/quaxis_bitcoin.dir/coinbase.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/bitcoin",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_bitcoin.dir/target.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/target.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/target.cpp",
+  "output": "src/bitcoin/CMakeFiles/quaxis_bitcoin.dir/target.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/bitcoin",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_bitcoin.dir/address.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/address.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/address.cpp",
+  "output": "src/bitcoin/CMakeFiles/quaxis_bitcoin.dir/address.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/bitcoin",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_bitcoin.dir/rpc_client.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/rpc_client.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/rpc_client.cpp",
+  "output": "src/bitcoin/CMakeFiles/quaxis_bitcoin.dir/rpc_client.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/bitcoin",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_bitcoin.dir/shm_subscriber.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/shm_subscriber.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin/shm_subscriber.cpp",
+  "output": "src/bitcoin/CMakeFiles/quaxis_bitcoin.dir/shm_subscriber.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/mining",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_mining.dir/job_manager.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/mining/job_manager.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/mining/job_manager.cpp",
+  "output": "src/mining/CMakeFiles/quaxis_mining.dir/job_manager.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/mining",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_mining.dir/template_cache.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/mining/template_cache.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/mining/template_cache.cpp",
+  "output": "src/mining/CMakeFiles/quaxis_mining.dir/template_cache.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/mining",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_mining.dir/share_validator.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/mining/share_validator.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/mining/share_validator.cpp",
+  "output": "src/mining/CMakeFiles/quaxis_mining.dir/share_validator.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/network",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_network.dir/server.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/network/server.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/network/server.cpp",
+  "output": "src/network/CMakeFiles/quaxis_network.dir/server.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/network",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_network.dir/asic_connection.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/network/asic_connection.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/network/asic_connection.cpp",
+  "output": "src/network/CMakeFiles/quaxis_network.dir/asic_connection.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/network",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_network.dir/protocol.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/network/protocol.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/network/protocol.cpp",
+  "output": "src/network/CMakeFiles/quaxis_network.dir/protocol.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src/monitoring",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/monitoring -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_monitoring.dir/stats.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/monitoring/stats.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/monitoring/stats.cpp",
+  "output": "src/monitoring/CMakeFiles/quaxis_monitoring.dir/stats.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/src",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -I/home/runner/work/Avalon-miner/Avalon-miner/src/monitoring -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis-miner.dir/main.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/src/main.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/src/main.cpp",
+  "output": "src/CMakeFiles/quaxis-miner.dir/main.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-build/googlemock",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googlemock/include -I/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googlemock -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/gmock.dir/src/gmock-all.cc.o -c /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googlemock/src/gmock-all.cc",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googlemock/src/gmock-all.cc",
+  "output": "_deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-build/googlemock",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googlemock/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googlemock -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/gmock_main.dir/src/gmock_main.cc.o -c /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googlemock/src/gmock_main.cc",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googlemock/src/gmock_main.cc",
+  "output": "_deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-build/googletest",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -I/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/gtest.dir/src/gtest-all.cc.o -c /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/src/gtest-all.cc",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/src/gtest-all.cc",
+  "output": "_deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-build/googletest",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wshadow -Wundef -Wno-error=dangling-else -DGTEST_HAS_PTHREAD=1 -fexceptions -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/gtest_main.dir/src/gtest_main.cc.o -c /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/src/gtest_main.cc",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/src/gtest_main.cc",
+  "output": "_deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/tests",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_tests.dir/test_sha256.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/tests/test_sha256.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/tests/test_sha256.cpp",
+  "output": "tests/CMakeFiles/quaxis_tests.dir/test_sha256.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/tests",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_tests.dir/test_coinbase.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/tests/test_coinbase.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/tests/test_coinbase.cpp",
+  "output": "tests/CMakeFiles/quaxis_tests.dir/test_coinbase.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/tests",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_tests.dir/test_block.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/tests/test_block.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/tests/test_block.cpp",
+  "output": "tests/CMakeFiles/quaxis_tests.dir/test_block.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/tests",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_tests.dir/test_protocol.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/tests/test_protocol.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/tests/test_protocol.cpp",
+  "output": "tests/CMakeFiles/quaxis_tests.dir/test_protocol.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/tests",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/mining -I/home/runner/work/Avalon-miner/Avalon-miner/src/network -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest/include -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/googletest-src/googletest -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/quaxis_tests.dir/test_target.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/tests/test_target.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/tests/test_target.cpp",
+  "output": "tests/CMakeFiles/quaxis_tests.dir/test_target.cpp.o"
+},
+{
+  "directory": "/home/runner/work/Avalon-miner/Avalon-miner/build/tests",
+  "command": "/usr/bin/c++ -DQUAXIS_HAS_SHANI -I/home/runner/work/Avalon-miner/Avalon-miner/src/core -I/home/runner/work/Avalon-miner/Avalon-miner/src/bitcoin -I/home/runner/work/Avalon-miner/Avalon-miner/src/crypto -isystem /home/runner/work/Avalon-miner/Avalon-miner/build/_deps/tomlplusplus-src/include -O3 -march=native -flto -DNDEBUG -std=c++23 -Wall -Wextra -Wpedantic -Werror -Wconversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -o CMakeFiles/benchmark_shm_vs_zmq.dir/benchmark_shm_vs_zmq.cpp.o -c /home/runner/work/Avalon-miner/Avalon-miner/tests/benchmark_shm_vs_zmq.cpp",
+  "file": "/home/runner/work/Avalon-miner/Avalon-miner/tests/benchmark_shm_vs_zmq.cpp",
+  "output": "tests/CMakeFiles/benchmark_shm_vs_zmq.dir/benchmark_shm_vs_zmq.cpp.o"
+}
+]

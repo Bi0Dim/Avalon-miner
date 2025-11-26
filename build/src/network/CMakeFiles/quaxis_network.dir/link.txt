@@ -1,0 +1,2 @@
+/usr/bin/ar qc libquaxis_network.a CMakeFiles/quaxis_network.dir/server.cpp.o CMakeFiles/quaxis_network.dir/asic_connection.cpp.o CMakeFiles/quaxis_network.dir/protocol.cpp.o
+/usr/bin/ranlib libquaxis_network.a

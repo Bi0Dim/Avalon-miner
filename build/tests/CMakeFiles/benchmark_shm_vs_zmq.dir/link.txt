@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -march=native -flto -DNDEBUG -Wl,--dependency-file=CMakeFiles/benchmark_shm_vs_zmq.dir/link.d CMakeFiles/benchmark_shm_vs_zmq.dir/benchmark_shm_vs_zmq.cpp.o -o benchmark_shm_vs_zmq  ../src/core/libquaxis_core.a ../src/bitcoin/libquaxis_bitcoin.a ../src/crypto/libquaxis_crypto.a ../src/core/libquaxis_core.a /usr/lib/x86_64-linux-gnu/libcurl.so

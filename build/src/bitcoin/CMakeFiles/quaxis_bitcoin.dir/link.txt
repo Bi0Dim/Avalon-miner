@@ -1,0 +1,2 @@
+/usr/bin/ar qc libquaxis_bitcoin.a CMakeFiles/quaxis_bitcoin.dir/block.cpp.o CMakeFiles/quaxis_bitcoin.dir/coinbase.cpp.o CMakeFiles/quaxis_bitcoin.dir/target.cpp.o CMakeFiles/quaxis_bitcoin.dir/address.cpp.o CMakeFiles/quaxis_bitcoin.dir/rpc_client.cpp.o CMakeFiles/quaxis_bitcoin.dir/shm_subscriber.cpp.o
+/usr/bin/ranlib libquaxis_bitcoin.a

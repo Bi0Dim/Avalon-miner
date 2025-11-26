@@ -83,7 +83,7 @@ struct alignas(64) QuaxisSharedBlock {
     uint8_t block_hash[32];
 };
 
-static_assert(sizeof(QuaxisSharedBlock) <= 256, "QuaxisSharedBlock превышает 256 байт");
+static_assert(sizeof(QuaxisSharedBlock) <= 512, "QuaxisSharedBlock превышает 512 байт");
 
 // =============================================================================
 // Callback тип

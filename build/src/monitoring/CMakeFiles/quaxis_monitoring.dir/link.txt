@@ -1,0 +1,2 @@
+/usr/bin/ar qc libquaxis_monitoring.a CMakeFiles/quaxis_monitoring.dir/stats.cpp.o
+/usr/bin/ranlib libquaxis_monitoring.a
