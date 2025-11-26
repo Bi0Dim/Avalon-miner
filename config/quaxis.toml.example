@@ -1,0 +1,90 @@
+# =============================================================================
+# Quaxis Solo Miner - Пример конфигурации сервера
+# =============================================================================
+# Скопируйте этот файл в ~/.config/quaxis/quaxis.toml и настройте
+# =============================================================================
+
+[server]
+# IP адрес для прослушивания подключений ASIC
+bind_address = "0.0.0.0"
+# TCP порт для подключений ASIC
+port = 3333
+# Максимальное количество одновременных подключений
+max_connections = 10
+# Размер буфера TCP сокета (байт)
+socket_buffer_size = 65536
+
+[bitcoin]
+# Адрес Bitcoin Core RPC сервера
+rpc_host = "127.0.0.1"
+# Порт Bitcoin Core RPC
+rpc_port = 8332
+# Имя пользователя для RPC аутентификации
+rpc_user = "quaxis"
+# Пароль для RPC аутентификации
+# ВАЖНО: Измените этот пароль на свой!
+rpc_password = "your_secure_password_here"
+# Таймаут для RPC запросов (секунды)
+rpc_timeout = 30
+
+# Адрес для получения награды за найденный блок
+# Формат: P2WPKH (Native SegWit) - bc1q...
+# ВАЖНО: Замените на свой адрес!
+payout_address = "bc1qrpamkfhuragxrfx8a9c28drcwygdwsgkzk2ykq"
+
+[mining]
+# Уникальный тег в coinbase транзакции (до 20 символов ASCII)
+# Используется для идентификации ваших блоков в блокчейне
+coinbase_tag = "quaxis"
+
+# Размер extranonce в байтах (4-8)
+# 6 байт = 2^48 вариантов = достаточно на 589 лет при 90 TH/s
+extranonce_size = 6
+
+# Количество заданий в очереди
+# Меньше = меньше stale work, но требует частой отправки
+job_queue_size = 100
+
+# Spy Mining: начинать майнинг до полной валидации блока
+# Экономит 150-1500 мс на каждом новом блоке
+use_spy_mining = true
+
+# Использовать минимально допустимый timestamp (MTP + 1)
+use_mtp_timestamp = true
+
+# Майнить только пустые блоки (только coinbase, без транзакций)
+# Ускоряет сборку блока и его распространение
+empty_blocks = true
+
+[shm]
+# Использовать Shared Memory для уведомлений о новых блоках
+# Требует применения патчей к Bitcoin Core
+enabled = true
+
+# Путь к объекту Shared Memory
+# Должен совпадать с настройкой в bitcoin.conf
+path = "/quaxis_block"
+
+# Режим ожидания: spin-wait (true) или poll (false)
+# spin-wait: минимальная латентность (~100 нс), высокое использование CPU
+# poll: выше латентность, меньше использование CPU
+spin_wait = true
+
+# Интервал polling в микросекундах (если spin_wait = false)
+poll_interval_us = 100
+
+[monitoring]
+# Интервал вывода статистики (секунды)
+# 0 = отключить вывод статистики
+stats_interval = 60
+
+# Уровень логирования: trace, debug, info, warn, error
+log_level = "info"
+
+# Файл для логов (пустая строка = вывод в stdout)
+log_file = ""
+
+# Включить Prometheus endpoint для мониторинга
+prometheus_enabled = false
+# Порт для Prometheus endpoint
+prometheus_port = 9090
