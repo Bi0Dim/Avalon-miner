@@ -144,6 +144,49 @@ struct MonitoringConfig {
 };
 
 /**
+ * @brief Конфигурация одного FIBRE relay пира
+ */
+struct RelayPeerConfig {
+    /// @brief Хост (IP или hostname)
+    std::string host;
+    
+    /// @brief Порт (по умолчанию 8336)
+    uint16_t port{8336};
+    
+    /// @brief Доверенный пир
+    bool trusted{false};
+};
+
+/**
+ * @brief Настройки UDP Relay (FIBRE протокол)
+ * 
+ * UDP Relay обеспечивает сверхбыстрое получение новых блоков
+ * через FIBRE-совместимый протокол (100-300 мс вместо 500-2000 мс).
+ */
+struct RelayConfig {
+    /// @brief Включить UDP relay
+    bool enabled{false};
+    
+    /// @brief Локальный порт для прослушивания
+    uint16_t local_port{8336};
+    
+    /// @brief Лимит bandwidth (Mbps)
+    uint32_t bandwidth_limit{100};
+    
+    /// @brief Таймаут реконструкции блока (мс)
+    uint32_t reconstruction_timeout{5000};
+    
+    /// @brief Включить FEC (Forward Error Correction)
+    bool fec_enabled{true};
+    
+    /// @brief Избыточность FEC (0.5 = 50%)
+    double fec_overhead{0.5};
+    
+    /// @brief Список FIBRE пиров
+    std::vector<RelayPeerConfig> peers;
+};
+
+/**
  * @brief Полная конфигурация Quaxis Solo Miner
  */
 struct Config {
@@ -152,6 +195,7 @@ struct Config {
     MiningConfig mining;
     ShmConfig shm;
     MonitoringConfig monitoring;
+    RelayConfig relay;
     
     /**
      * @brief Загрузить конфигурацию из TOML файла

@@ -13,6 +13,7 @@ target_link_libraries(quaxis-miner PRIVATE
     quaxis::mining
     quaxis::network
     quaxis::monitoring
+    quaxis::relay
 )
 
 # Установка

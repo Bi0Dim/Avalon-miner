@@ -88,6 +88,7 @@ add_subdirectory(src/bitcoin)
 add_subdirectory(src/mining)
 add_subdirectory(src/network)
 add_subdirectory(src/monitoring)
+add_subdirectory(src/relay)
 add_subdirectory(src)
 
 # =============================================================================

@@ -88,3 +88,51 @@ log_file = ""
 prometheus_enabled = false
 # Порт для Prometheus endpoint
 prometheus_port = 9090
+
+# =============================================================================
+# UDP Relay (FIBRE протокол) - Сверхбыстрое получение блоков
+# =============================================================================
+# FIBRE обеспечивает получение блоков за 100-300 мс вместо 500-2000 мс
+# через стандартный Bitcoin P2P протокол.
+# =============================================================================
+
+[relay]
+# Включить UDP relay для быстрого получения блоков
+enabled = false
+
+# Локальный UDP порт для прослушивания
+local_port = 8336
+
+# Bandwidth лимит (Mbps)
+# Ограничивает скорость приёма данных от relay пиров
+bandwidth_limit = 100
+
+# Таймаут реконструкции блока (миллисекунды)
+# Если блок не собран за это время - используем данные от Bitcoin P2P
+reconstruction_timeout = 5000
+
+# Forward Error Correction (FEC)
+# Позволяет восстанавливать данные при потере UDP пакетов
+fec_enabled = true
+
+# Избыточность FEC (0.5 = 50% дополнительных пакетов)
+# Больше = надёжнее, но больше трафика
+fec_overhead = 0.5
+
+# FIBRE пиры - серверы для получения блоков
+# trusted = true означает что header от этого пира используется для Spy Mining
+
+[[relay.peers]]
+host = "fibre.asia.bitcoinfibre.org"
+port = 8336
+trusted = true
+
+[[relay.peers]]
+host = "fibre.eu.bitcoinfibre.org"
+port = 8336
+trusted = true
+
+[[relay.peers]]
+host = "fibre.us.bitcoinfibre.org"
+port = 8336
+trusted = true
