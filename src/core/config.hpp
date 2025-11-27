@@ -130,17 +130,29 @@ struct ShmConfig {
 };
 
 /**
- * @brief Настройки мониторинга и логирования
+ * @brief Настройки логирования и терминального вывода
  */
-struct MonitoringConfig {
-    /// @brief Интервал вывода статистики в секундах
-    uint32_t stats_interval = 60;
+struct LoggingConfig {
+    /// @brief Уровень логирования: "error", "warn", "info", "debug"
+    std::string level = "info";
     
-    /// @brief Уровень логирования: "debug", "info", "warning", "error"
-    std::string log_level = "info";
+    /// @brief Интервал обновления статуса в терминале (мс)
+    uint32_t refresh_interval_ms = 1000;
     
-    /// @brief Путь к файлу лога (пустой = stdout)
-    std::string log_file;
+    /// @brief Размер истории событий
+    uint32_t event_history = 200;
+    
+    /// @brief Включить ANSI цвета в терминале
+    bool color = true;
+    
+    /// @brief Подсвечивать найденные блоки
+    bool highlight_found_blocks = true;
+    
+    /// @brief Показывать счётчики блоков по chains
+    bool show_chain_block_counts = true;
+    
+    /// @brief Показывать хешрейт
+    bool show_hashrate = true;
 };
 
 /**
@@ -194,7 +206,7 @@ struct Config {
     BitcoinConfig bitcoin;
     MiningConfig mining;
     ShmConfig shm;
-    MonitoringConfig monitoring;
+    LoggingConfig logging;
     RelayConfig relay;
     
     /**

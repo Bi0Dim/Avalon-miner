@@ -115,12 +115,15 @@ cp config/quaxis.toml.example ~/.config/quaxis/quaxis.toml
 Avalon-miner/
 ├── CMakeLists.txt              # Главный CMake файл
 ├── src/
-│   ├── core/                   # Базовые типы, константы, конфигурация
+│   ├── core/                   # Базовые типы, ChainParams, конфигурация
 │   ├── crypto/                 # SHA256 с SHA-NI поддержкой
 │   ├── bitcoin/                # Блоки, coinbase, RPC, Shared Memory
 │   ├── mining/                 # Задания, валидация, кеш шаблонов
 │   ├── network/                # TCP сервер, бинарный протокол
-│   ├── monitoring/             # Статистика
+│   ├── merged/                 # AuxPoW merged mining (12 chains)
+│   ├── fallback/               # Pool fallback, Stratum client
+│   ├── shm/                    # Adaptive spin-wait для SHM
+│   ├── log/                    # Терминальный вывод статуса
 │   └── main.cpp                # Точка входа
 ├── firmware/                   # Прошивка ASIC (C)
 │   ├── include/                # Заголовочные файлы
@@ -132,6 +135,38 @@ Avalon-miner/
 └── tests/                      # Тесты и бенчмарки
 ```
 
+## Runtime Status Output
+
+Quaxis выводит компактный статус прямо в терминал с периодическим обновлением:
+
+```
+Uptime: 01:23:45 | Fallback: OFF
+Hashrate: 90.50 TH/s | ASICs: 3
+BTC Height: 800000 | Tip Age: 150 ms | Jobs: 50 | Templates: 2
+Chains: NMC, SYS, ELA, RSK, HTR, FB, XMY, HUC, EMC, UNO, TRC, XVC
+Found Blocks: NMC:2, SYS:1
+Adaptive Spin: ON | SHM CPU: 15.5%
+```
+
+## Поддерживаемые AuxPoW Chains (12)
+
+| Монета | Тикер | Описание |
+|--------|-------|----------|
+| Namecoin | NMC | Первый AuxPoW форк Bitcoin |
+| Syscoin | SYS | Smart contracts platform |
+| Elastos | ELA | Internet infrastructure |
+| RSK/Rootstock | RBTC | Bitcoin smart contracts |
+| Hathor | HTR | DAG + PoW гибрид |
+| VCash | XVC | Privacy-focused |
+| Fractal | FB | Bitcoin L2 scaling |
+| Myriad | XMY | Multi-algo (SHA256) |
+| Huntercoin | HUC | Gaming blockchain |
+| Emercoin | EMC | DNS/SSL на блокчейне |
+| Unobtanium | UNO | Rare coin (250k supply) |
+| Terracoin | TRC | Старый форк Bitcoin |
+
+**Примечание:** Stacks (STX) не поддерживается — использует PoX, а не AuxPoW.
+
 ## Документация
 
 - [ARCHITECTURE.md](docs/ARCHITECTURE.md) — описание архитектуры
@@ -139,6 +174,8 @@ Avalon-miner/
 - [OPTIMIZATIONS.md](docs/OPTIMIZATIONS.md) — описание всех 17 оптимизаций
 - [BUILDING.md](docs/BUILDING.md) — инструкции по сборке
 - [CONFIGURATION.md](docs/CONFIGURATION.md) — настройка системы
+- [MERGED_MINING.md](docs/MERGED_MINING.md) — AuxPoW merged mining
+- [UNIVERSAL_CORE.md](docs/UNIVERSAL_CORE.md) — Universal AuxPoW Core
 
 ## Бинарный протокол
 

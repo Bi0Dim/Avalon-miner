@@ -107,16 +107,28 @@ Result<Config> Config::load(const std::filesystem::path& path) {
             }
         }
         
-        // === Секция [monitoring] ===
-        if (auto monitoring = table["monitoring"].as_table()) {
-            if (auto val = (*monitoring)["stats_interval"].value<int64_t>()) {
-                config.monitoring.stats_interval = static_cast<uint32_t>(*val);
+        // === Секция [logging] ===
+        if (auto logging = table["logging"].as_table()) {
+            if (auto val = (*logging)["level"].value<std::string>()) {
+                config.logging.level = *val;
             }
-            if (auto val = (*monitoring)["log_level"].value<std::string>()) {
-                config.monitoring.log_level = *val;
+            if (auto val = (*logging)["refresh_interval_ms"].value<int64_t>()) {
+                config.logging.refresh_interval_ms = static_cast<uint32_t>(*val);
             }
-            if (auto val = (*monitoring)["log_file"].value<std::string>()) {
-                config.monitoring.log_file = *val;
+            if (auto val = (*logging)["event_history"].value<int64_t>()) {
+                config.logging.event_history = static_cast<uint32_t>(*val);
+            }
+            if (auto val = (*logging)["color"].value<bool>()) {
+                config.logging.color = *val;
+            }
+            if (auto val = (*logging)["highlight_found_blocks"].value<bool>()) {
+                config.logging.highlight_found_blocks = *val;
+            }
+            if (auto val = (*logging)["show_chain_block_counts"].value<bool>()) {
+                config.logging.show_chain_block_counts = *val;
+            }
+            if (auto val = (*logging)["show_hashrate"].value<bool>()) {
+                config.logging.show_hashrate = *val;
             }
         }
         

@@ -185,10 +185,8 @@ restart_cooldown = 300
 
 ### Файлы
 
-- `src/monitoring/health_monitor.hpp` — мониторинг здоровья
-- `src/monitoring/health_monitor.cpp` — реализация
-- `src/monitoring/alert_manager.hpp` — управление алертами
-- `src/monitoring/alert_manager.cpp` — реализация
+- `src/log/status_reporter.hpp` — терминальный вывод статуса
+- `src/log/status_reporter.cpp` — реализация
 - `firmware/include/health_reporter.h` — прошивка
 - `firmware/src/health_reporter.c` — реализация
 

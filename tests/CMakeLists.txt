@@ -9,7 +9,6 @@ add_executable(quaxis_tests
     test_block.cpp
     test_target.cpp
     test_version_rolling.cpp
-    test_health_monitor.cpp
     test_nonce_distributor.cpp
     test_auxpow.cpp
     test_chain_manager.cpp
@@ -19,10 +18,11 @@ add_executable(quaxis_tests
     core/test_chain_params.cpp
     core/test_headers_sync.cpp
     core/test_auxpow_validator.cpp
-    # Тесты для Fallback и Monitoring
+    # Тесты для Fallback
     test_fallback_manager.cpp
-    test_metrics.cpp
-    test_health_endpoint.cpp
+    # Тесты для новых модулей
+    test_adaptive_spin.cpp
+    test_status_reporter.cpp
     # test_protocol.cpp - Excluded: Protocol API doesn't match test expectations
     # test_coinbase.cpp - Excluded: CoinbaseBuilder API doesn't match test expectations
     # test_relay.cpp - Excluded: Relay API doesn't match test expectations
@@ -44,10 +44,10 @@ target_link_libraries(quaxis_tests PRIVATE
     quaxis_mining
     quaxis_network
     quaxis_relay
-    quaxis_monitoring
     quaxis_merged
     quaxis_fallback
-    quaxis_http
+    quaxis_shm
+    quaxis_log
     quaxis_bridge
     GTest::gtest
     GTest::gtest_main

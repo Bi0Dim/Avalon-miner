@@ -76,7 +76,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(tomlplusplus)
 
-# libcurl для HTTP запросов к Bitcoin Core RPC
+# libcurl для JSON-RPC запросов к Bitcoin Core и auxiliary chains
 find_package(CURL REQUIRED)
 
 # =============================================================================
@@ -91,8 +91,8 @@ add_subdirectory(src/bitcoin)
 add_subdirectory(src/mining)
 add_subdirectory(src/network)
 add_subdirectory(src/fallback)
-add_subdirectory(src/http)
-add_subdirectory(src/monitoring)
+add_subdirectory(src/shm)
+add_subdirectory(src/log)
 add_subdirectory(src/relay)
 add_subdirectory(src/merged)
 add_subdirectory(src/bridge)

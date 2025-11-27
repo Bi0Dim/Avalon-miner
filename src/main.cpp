@@ -33,7 +33,7 @@
 #include "mining/job_manager.hpp"
 #include "mining/share_validator.hpp"
 #include "network/server.hpp"
-#include "monitoring/stats.hpp"
+#include "log/status_reporter.hpp"
 
 #include <iostream>
 #include <format>
@@ -265,18 +265,49 @@ int main(int argc, char* argv[]) {
     // Создаём валидатор shares
     mining::ShareValidator share_validator(job_manager);
     
-    // Создаём сборщик статистики
-    monitoring::StatsCollector stats(config.monitoring);
-    
     // Создаём TCP сервер
     network::Server server(config.server, job_manager);
     
-    server.set_connected_callback([&stats](const std::string& addr) {
-        std::cout << "[INFO] ASIC подключён: " << addr << std::endl;
+    // Создаём репортер статуса
+    log::StatusReporterConfig log_config;
+    log_config.refresh_interval_ms = config.logging.refresh_interval_ms;
+    log_config.event_history = config.logging.event_history;
+    log_config.color = config.logging.color;
+    log_config.highlight_found_blocks = config.logging.highlight_found_blocks;
+    log_config.show_chain_block_counts = config.logging.show_chain_block_counts;
+    log_config.show_hashrate = config.logging.show_hashrate;
+    log::StatusReporter status_reporter(log_config);
+    
+    // Время запуска для uptime
+    auto start_time = std::chrono::steady_clock::now();
+    uint32_t current_height = 0;
+    uint64_t jobs_sent = 0;
+    uint64_t blocks_found = 0;
+    
+    // Провайдер данных для status reporter
+    status_reporter.set_data_provider([&]() {
+        log::StatusData data;
+        auto now = std::chrono::steady_clock::now();
+        data.uptime = std::chrono::duration_cast<std::chrono::seconds>(now - start_time);
+        data.fallback_active = false;
+        data.hashrate_ths = 0.0; // TODO: получить от ASIC
+        data.asic_connections = static_cast<uint32_t>(server.connection_count());
+        data.btc_height = current_height;
+        data.tip_age_ms = 0;
+        data.job_queue_depth = static_cast<uint32_t>(jobs_sent);
+        data.prepared_templates = 1;
+        data.adaptive_spin_active = config.shm.spin_wait;
+        return data;
     });
     
-    server.set_disconnected_callback([&stats](const std::string& addr) {
+    server.set_connected_callback([&status_reporter](const std::string& addr) {
+        std::cout << "[INFO] ASIC подключён: " << addr << std::endl;
+        status_reporter.add_event(log::EventType::SubmitOk, "ASIC connected", addr);
+    });
+    
+    server.set_disconnected_callback([&status_reporter](const std::string& addr) {
         std::cout << "[INFO] ASIC отключён: " << addr << std::endl;
+        status_reporter.add_event(log::EventType::Error, "ASIC disconnected", addr);
     });
     
     // Устанавливаем обработчики сигналов
@@ -297,8 +328,8 @@ int main(int argc, char* argv[]) {
     
     std::cout << "[INFO] Сервер запущен" << std::endl;
     
-    // Запускаем периодический вывод статистики
-    stats.start_periodic_output();
+    // Запускаем терминальный вывод статуса
+    status_reporter.start();
     
     // Основной цикл
     std::cout << "[INFO] Начинаем майнинг..." << std::endl;
@@ -325,15 +356,16 @@ int main(int argc, char* argv[]) {
             // Получаем задание и рассылаем ASIC
             if (auto job = job_manager.get_next_job()) {
                 server.broadcast_job(*job);
-                stats.record_job_sent();
+                ++jobs_sent;
             }
             
-            // Обновляем статистику
-            stats.update_block_info(tmpl.height, bitcoin::bits_to_difficulty(tmpl.bits));
+            // Обновляем текущую высоту
+            current_height = tmpl.height;
+            
+            // Добавляем событие о новом блоке
+            status_reporter.add_event(log::EventType::NewBlock, 
+                "Height: " + std::to_string(tmpl.height), "");
         }
-        
-        // Обновляем количество соединений
-        stats.update_connection_count(server.connection_count());
         
         // Пауза перед следующей итерацией
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -342,17 +374,18 @@ int main(int argc, char* argv[]) {
     // Graceful shutdown
     std::cout << "[INFO] Остановка сервера..." << std::endl;
     
-    stats.stop_periodic_output();
+    status_reporter.stop();
     server.stop();
     
     std::cout << "[INFO] Quaxis Solo Miner остановлен" << std::endl;
     
     // Выводим финальную статистику
-    auto final_stats = stats.get_stats();
+    auto now = std::chrono::steady_clock::now();
+    auto uptime = std::chrono::duration_cast<std::chrono::seconds>(now - start_time);
     std::cout << "\n=== Итоговая статистика ===" << std::endl;
-    std::cout << "Время работы: " << monitoring::format_duration(final_stats.uptime) << std::endl;
-    std::cout << "Всего shares: " << final_stats.shares_total << std::endl;
-    std::cout << "Найдено блоков: " << final_stats.blocks_found << std::endl;
+    std::cout << "Время работы: " << uptime.count() << " секунд" << std::endl;
+    std::cout << "Отправлено заданий: " << jobs_sent << std::endl;
+    std::cout << "Найдено блоков: " << blocks_found << std::endl;
     
     return 0;
 }

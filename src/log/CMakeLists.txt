@@ -1,21 +1,20 @@
 # =============================================================================
-# Quaxis Solo Miner - HTTP модуль
+# Quaxis Solo Miner - Log модуль
 # =============================================================================
-# Простой HTTP сервер для health и metrics endpoints
+# Терминальный вывод статуса и логирование
 # =============================================================================
 
-add_library(quaxis_http STATIC
-    http_server.cpp
+add_library(quaxis_log STATIC
+    status_reporter.cpp
 )
 
-target_include_directories(quaxis_http PUBLIC
+target_include_directories(quaxis_log PUBLIC
     ${CMAKE_SOURCE_DIR}/src
 )
 
-target_link_libraries(quaxis_http PUBLIC
+target_link_libraries(quaxis_log PUBLIC
     quaxis::core
-    quaxis::fallback
     Threads::Threads
 )
 
-add_library(quaxis::http ALIAS quaxis_http)
+add_library(quaxis::log ALIAS quaxis_log)

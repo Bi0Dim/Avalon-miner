@@ -49,9 +49,9 @@ enum class FallbackMode {
 }
 
 /**
- * @brief Преобразовать режим в числовое значение для Prometheus
+ * @brief Преобразовать режим в числовое значение
  */
-[[nodiscard]] constexpr int to_prometheus_value(FallbackMode mode) noexcept {
+[[nodiscard]] constexpr int to_mode_value(FallbackMode mode) noexcept {
     switch (mode) {
         case FallbackMode::PrimarySHM:      return 0;
         case FallbackMode::FallbackZMQ:     return 1;
