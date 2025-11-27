@@ -112,7 +112,7 @@ Hash256 HeadersStore::get_tip_hash() const {
 
 bool HeadersStore::has_header(const Hash256& hash) const {
     std::lock_guard<std::mutex> lock(mutex_);
-    return hash_index_.contains(hash);
+    return hash_index_.find(hash) != hash_index_.end();
 }
 
 std::vector<BlockHeader> HeadersStore::get_recent_headers(

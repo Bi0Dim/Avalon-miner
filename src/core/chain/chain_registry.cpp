@@ -6,6 +6,7 @@
 #include "chain_registry.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <stdexcept>
 
 namespace quaxis::core {
@@ -364,7 +365,7 @@ bool ChainRegistry::register_chain(ChainParams params) {
     std::transform(lower_name.begin(), lower_name.end(), lower_name.begin(),
                    [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
     
-    if (name_index_.contains(lower_name)) {
+    if (name_index_.find(lower_name) != name_index_.end()) {
         return false;
     }
     

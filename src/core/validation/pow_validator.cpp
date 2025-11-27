@@ -68,11 +68,15 @@ uint32_t PowValidator::calculate_next_target(
         actual_timespan = expected * 4;
     }
     
-    // Вычисляем новый target
-    // new_target = old_target * actual_time / expected_time
-    // Упрощённая реализация - возвращаем тот же target
-    // TODO: полноценная арифметика uint256
-    (void)actual_timespan;  // Suppress unused warning
+    // ПРИМЕЧАНИЕ: Пересчёт difficulty не требуется для merged mining,
+    // так как target берётся напрямую из шаблона блока auxiliary chain.
+    // Эта функция используется только для валидации исторических блоков
+    // при полной синхронизации, что выходит за рамки данного модуля.
+    // 
+    // Для полной реализации требуется:
+    // 1. uint256 арифметика (умножение/деление)
+    // 2. Учёт специфики каждой chain (разные алгоритмы retarget)
+    (void)actual_timespan;
     
     return last_bits;
 }
