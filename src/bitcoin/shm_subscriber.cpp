@@ -91,9 +91,9 @@ struct ShmSubscriber::Impl {
             if (seq != last_sequence.load(std::memory_order_relaxed)) {
                 // Новый блок!
                 process_new_block(seq);
-            } else if (!config.spin_wait) {
+            } else if (!config.adaptive_spin_enabled) {
                 // Poll режим - ждём
-                std::this_thread::sleep_for(std::chrono::microseconds(100));
+                std::this_thread::sleep_for(std::chrono::microseconds(config.sleep_us));
             } else {
                 // Spin-wait - пауза для CPU
                 std::this_thread::yield();

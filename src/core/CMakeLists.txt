@@ -8,6 +8,7 @@
 add_library(quaxis_core STATIC
     byte_order.cpp
     config.cpp
+    mtp_calculator.cpp
     
     # Chain - параметры блокчейнов (не зависят от crypto)
     chain/chain_registry.cpp

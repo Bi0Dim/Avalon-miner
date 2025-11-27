@@ -1,5 +1,6 @@
 # =============================================================================
 # Quaxis Solo Miner - Пример конфигурации сервера
+# Universal AuxPoW Core - автономный режим
 # =============================================================================
 # Скопируйте этот файл в ~/.config/quaxis/quaxis.toml и настройте
 # =============================================================================
@@ -14,19 +15,13 @@ max_connections = 10
 # Размер буфера TCP сокета (байт)
 socket_buffer_size = 65536
 
-[bitcoin]
-# Адрес Bitcoin Core RPC сервера
-rpc_host = "127.0.0.1"
-# Порт Bitcoin Core RPC
-rpc_port = 8332
-# Имя пользователя для RPC аутентификации
-rpc_user = "quaxis"
-# Пароль для RPC аутентификации
-# ВАЖНО: Измените этот пароль на свой!
-rpc_password = "your_secure_password_here"
-# Таймаут для RPC запросов (секунды)
-rpc_timeout = 30
-
+[parent_chain]
+# Источник заголовков: "p2p", "fibre" или "trusted"
+headers_source = "p2p"
+# Seed ноды для P2P подключения
+seed_nodes = ["seed.bitcoin.sipa.be", "dnsseed.bluematt.me", "seed.bitcoinstats.com"]
+# Интервал обновления MTP (секунды)
+mtp_refresh_seconds = 60
 # Адрес для получения награды за найденный блок
 # Формат: P2WPKH (Native SegWit) - bc1q...
 # ВАЖНО: Замените на свой адрес!
@@ -131,20 +126,25 @@ random_seed = 0
 
 [shm]
 # Использовать Shared Memory для уведомлений о новых блоках
-# Требует применения патчей к Bitcoin Core
 enabled = true
 
 # Путь к объекту Shared Memory
-# Должен совпадать с настройкой в bitcoin.conf
 path = "/quaxis_block"
 
-# Режим ожидания: spin-wait (true) или poll (false)
-# spin-wait: минимальная латентность (~100 нс), высокое использование CPU
-# poll: выше латентность, меньше использование CPU
-spin_wait = true
+# Адаптивный spin-wait (3-фазный алгоритм)
+# Фаза 1: spin с pause — минимальная латентность, высокое CPU
+# Фаза 2: yield — средняя латентность, среднее CPU  
+# Фаза 3: sleep — выше латентность, низкое CPU
+adaptive_spin_enabled = true
 
-# Интервал polling в микросекундах (если spin_wait = false)
-poll_interval_us = 100
+# Количество итераций фазы 1 (spin)
+spin_phase1_iterations = 2000
+
+# Количество итераций фазы 2 (yield)
+spin_phase2_iterations = 2000
+
+# Время sleep в микросекундах (фаза 3)
+sleep_us = 200
 
 # =============================================================================
 # Logging — Терминальный вывод статуса

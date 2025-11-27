@@ -1,8 +1,9 @@
 /**
  * @file rpc_client.hpp
- * @brief HTTP клиент для Bitcoin Core RPC
+ * @brief HTTP клиент для RPC запросов
  * 
- * Асинхронный RPC клиент для взаимодействия с Bitcoin Core.
+ * RPC клиент для взаимодействия с Bitcoin-совместимыми нодами.
+ * Используется для fallback и отправки найденных блоков.
  * Использует libcurl для HTTP запросов.
  * 
  * Поддерживаемые методы:
@@ -15,7 +16,6 @@
 #pragma once
 
 #include "../core/types.hpp"
-#include "../core/config.hpp"
 #include "block.hpp"
 
 #include <memory>
@@ -23,6 +23,39 @@
 #include <optional>
 
 namespace quaxis::bitcoin {
+
+// =============================================================================
+// Конфигурация RPC
+// =============================================================================
+
+/**
+ * @brief Конфигурация RPC клиента
+ * 
+ * Используется для fallback подключения к Bitcoin-совместимым нодам.
+ */
+struct RpcConfig {
+    /// @brief Хост RPC сервера
+    std::string host = "127.0.0.1";
+    
+    /// @brief Порт RPC сервера
+    uint16_t port = 8332;
+    
+    /// @brief Имя пользователя
+    std::string user = "";
+    
+    /// @brief Пароль
+    std::string password = "";
+    
+    /// @brief Таймаут в секундах
+    uint32_t timeout = 30;
+    
+    /**
+     * @brief Получить URL для RPC запросов
+     */
+    [[nodiscard]] std::string get_url() const {
+        return "http://" + host + ":" + std::to_string(port) + "/";
+    }
+};
 
 // =============================================================================
 // Структуры данных RPC
@@ -61,16 +94,18 @@ struct BlockTemplateData {
 // =============================================================================
 
 /**
- * @brief Асинхронный RPC клиент для Bitcoin Core
+ * @brief RPC клиент для Bitcoin-совместимых нод
+ * 
+ * Используется для fallback и отправки блоков.
  */
 class RpcClient {
 public:
     /**
      * @brief Создать клиент с конфигурацией
      * 
-     * @param config Конфигурация Bitcoin RPC
+     * @param config Конфигурация RPC
      */
-    explicit RpcClient(const BitcoinConfig& config);
+    explicit RpcClient(const RpcConfig& config);
     
     /**
      * @brief Деструктор
@@ -119,7 +154,7 @@ public:
     [[nodiscard]] Result<void> submit_block(std::string_view block_hex);
     
     /**
-     * @brief Проверить соединение с Bitcoin Core
+     * @brief Проверить соединение
      * 
      * @return Result<void> Успех если соединение работает
      */
@@ -137,7 +172,7 @@ private:
 /**
  * @brief Создать RPC клиент с автоматическим определением конфигурации
  * 
- * Пытается подключиться к Bitcoin Core на стандартных портах.
+ * Пытается подключиться на стандартных портах.
  * 
  * @return Result<RpcClient> Клиент или ошибка
  */

@@ -2,12 +2,12 @@
  * @file main.cpp
  * @brief Точка входа Quaxis Solo Miner
  * 
- * Quaxis Solo Miner - высокооптимизированный соло-майнер Bitcoin
+ * Universal AuxPoW Core - автономный соло-майнер Bitcoin
  * для ASIC Avalon 1126 Pro.
  * 
  * Основные компоненты:
- * 1. RPC Client - связь с Bitcoin Core
- * 2. SHM Subscriber - получение новых блоков через Shared Memory
+ * 1. Headers Sync - синхронизация заголовков через P2P/FIBRE
+ * 2. Template Generator - внутренняя генерация шаблонов блоков
  * 3. Job Manager - генерация заданий для ASIC
  * 4. TCP Server - связь с ASIC устройствами
  * 5. Share Validator - проверка найденных nonce
@@ -26,7 +26,6 @@
 #include "core/config.hpp"
 #include "core/constants.hpp"
 #include "crypto/sha256.hpp"
-#include "bitcoin/rpc_client.hpp"
 #include "bitcoin/shm_subscriber.hpp"
 #include "bitcoin/coinbase.hpp"
 #include "bitcoin/target.hpp"
@@ -65,7 +64,7 @@ void signal_handler(int signum) {
 void print_help() {
     std::cout << R"(
 Quaxis Solo Miner v)" << VERSION << R"(
-Высокооптимизированный соло-майнер Bitcoin для ASIC Avalon 1126 Pro
+Universal AuxPoW Core - автономный соло-майнер Bitcoin для ASIC Avalon 1126 Pro
 
 ИСПОЛЬЗОВАНИЕ:
     quaxis-miner [ОПЦИИ]
@@ -75,11 +74,10 @@ Quaxis Solo Miner v)" << VERSION << R"(
     -h, --help           Показать эту справку
     -v, --version        Показать версию программы
     --test-config        Проверить конфигурацию и выйти
-    --test-rpc           Проверить подключение к Bitcoin Core
 
 ПРИМЕРЫ:
     quaxis-miner -c /etc/quaxis/quaxis.toml
-    quaxis-miner --test-rpc
+    quaxis-miner --test-config
 
 ДОКУМЕНТАЦИЯ:
     https://github.com/quaxis/solo-miner
@@ -92,6 +90,7 @@ Quaxis Solo Miner v)" << VERSION << R"(
  */
 void print_version() {
     std::cout << "Quaxis Solo Miner v" << VERSION << std::endl;
+    std::cout << "Universal AuxPoW Core" << std::endl;
     std::cout << "SHA256: " << quaxis::crypto::get_implementation_name() << std::endl;
 }
 
@@ -109,7 +108,7 @@ void print_banner() {
 ║  ╚██████╔╝╚██████╔╝██║  ██║██╔╝ ██╗██║███████║                   ║
 ║   ╚══▀▀═╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚══════╝                   ║
 ║                                                                   ║
-║              SOLO MINER для Avalon 1126 Pro                       ║
+║          Universal AuxPoW Core for Avalon 1126 Pro                ║
 ║                        v)" << VERSION << R"(                                  ║
 ║                                                                   ║
 ╚═══════════════════════════════════════════════════════════════════╝
@@ -124,7 +123,6 @@ struct Args {
     bool show_help = false;
     bool show_version = false;
     bool test_config = false;
-    bool test_rpc = false;
 };
 
 Args parse_args(int argc, char* argv[]) {
@@ -139,8 +137,6 @@ Args parse_args(int argc, char* argv[]) {
             args.show_version = true;
         } else if (arg == "--test-config") {
             args.test_config = true;
-        } else if (arg == "--test-rpc") {
-            args.test_rpc = true;
         } else if ((arg == "-c" || arg == "--config") && i + 1 < argc) {
             args.config_path = argv[++i];
         }
@@ -174,6 +170,7 @@ int main(int argc, char* argv[]) {
     print_banner();
     
     std::cout << "[INFO] SHA256 реализация: " << crypto::get_implementation_name() << std::endl;
+    std::cout << "[INFO] Universal AuxPoW Core - автономный режим" << std::endl;
     
     // Загружаем конфигурацию
     std::cout << "[INFO] Загрузка конфигурации..." << std::endl;
@@ -198,53 +195,16 @@ int main(int argc, char* argv[]) {
     }
     
     std::cout << "[INFO] Конфигурация загружена успешно" << std::endl;
+    std::cout << "[INFO] Источник заголовков: " << config.parent_chain.headers_source << std::endl;
     
     if (args.test_config) {
         std::cout << "[INFO] Конфигурация валидна" << std::endl;
         return 0;
     }
     
-    // Проверяем подключение к Bitcoin Core
-    std::cout << "[INFO] Подключение к Bitcoin Core " 
-              << config.bitcoin.rpc_host << ":" << config.bitcoin.rpc_port 
-              << "..." << std::endl;
-    
-    bitcoin::RpcClient rpc_client(config.bitcoin);
-    
-    auto ping_result = rpc_client.ping();
-    if (!ping_result) {
-        std::cerr << "[ERROR] Не удалось подключиться к Bitcoin Core: "
-                  << ping_result.error().message << std::endl;
-        return 1;
-    }
-    
-    // Получаем информацию о блокчейне
-    auto blockchain_info = rpc_client.get_blockchain_info();
-    if (!blockchain_info) {
-        std::cerr << "[ERROR] Не удалось получить информацию о блокчейне: "
-                  << blockchain_info.error().message << std::endl;
-        return 1;
-    }
-    
-    std::cout << "[INFO] Подключено к Bitcoin Core" << std::endl;
-    std::cout << "[INFO] Сеть: " << blockchain_info->chain << std::endl;
-    std::cout << "[INFO] Высота блока: " << blockchain_info->blocks << std::endl;
-    std::cout << "[INFO] Сложность: " << bitcoin::format_difficulty(blockchain_info->difficulty) 
-              << std::endl;
-    
-    if (blockchain_info->initial_block_download) {
-        std::cerr << "[WARNING] Bitcoin Core синхронизируется (IBD), "
-                  << "майнинг может быть неэффективным" << std::endl;
-    }
-    
-    if (args.test_rpc) {
-        std::cout << "[INFO] Подключение к Bitcoin Core успешно" << std::endl;
-        return 0;
-    }
-    
     // Создаём coinbase builder
     auto coinbase_builder_result = bitcoin::CoinbaseBuilder::from_address(
-        config.bitcoin.payout_address,
+        config.parent_chain.payout_address,
         config.mining.coinbase_tag
     );
     
@@ -256,7 +216,7 @@ int main(int argc, char* argv[]) {
     
     auto coinbase_builder = std::move(*coinbase_builder_result);
     
-    std::cout << "[INFO] Адрес выплаты: " << config.bitcoin.payout_address << std::endl;
+    std::cout << "[INFO] Адрес выплаты: " << config.parent_chain.payout_address << std::endl;
     std::cout << "[INFO] Тег coinbase: " << config.mining.coinbase_tag << std::endl;
     
     // Создаём менеджер заданий
@@ -267,10 +227,11 @@ int main(int argc, char* argv[]) {
     
     // Создаём репортёр статуса
     log::LoggingConfig log_config;
-    log_config.refresh_interval_ms = 1000;
-    log_config.color = true;
-    log_config.show_hashrate = true;
-    log_config.show_chain_block_counts = true;
+    log_config.refresh_interval_ms = config.logging.refresh_interval_ms;
+    log_config.color = config.logging.color;
+    log_config.show_hashrate = config.logging.show_hashrate;
+    log_config.show_chain_block_counts = config.logging.show_chain_block_counts;
+    log_config.event_history = config.logging.event_history;
     log::StatusReporter status_reporter(log_config);
     
     // Создаём TCP сервер
@@ -305,45 +266,55 @@ int main(int argc, char* argv[]) {
     // Запускаем репортёр статуса
     status_reporter.start();
     
-    // Основной цикл
-    std::cout << "[INFO] Начинаем майнинг..." << std::endl;
+    // Основной цикл - ожидание блоков через SHM или fallback
+    std::cout << "[INFO] Ожидание блоков..." << std::endl;
+    std::cout << "[INFO] Источник: " << config.parent_chain.headers_source << std::endl;
     
-    while (g_running.load(std::memory_order_relaxed)) {
-        // Получаем новый шаблон блока
-        auto template_result = rpc_client.get_block_template();
-        
-        if (template_result) {
-            auto& tmpl = *template_result;
-            
+    // Инициализируем SHM подписчик если включён
+    std::unique_ptr<bitcoin::ShmSubscriber> shm_subscriber;
+    if (config.shm.enabled) {
+        shm_subscriber = std::make_unique<bitcoin::ShmSubscriber>(config.shm);
+        shm_subscriber->set_callback([&](const bitcoin::BlockHeader& header, 
+                                          uint32_t height, 
+                                          int64_t coinbase_value,
+                                          bool is_speculative) {
             // Создаём BlockTemplate
             bitcoin::BlockTemplate block_template;
-            block_template.height = tmpl.height;
-            block_template.header.version = tmpl.version;
-            block_template.header.prev_block = tmpl.prev_blockhash;
-            block_template.header.timestamp = tmpl.curtime;
-            block_template.header.bits = tmpl.bits;
-            block_template.coinbase_value = tmpl.coinbase_value;
+            block_template.height = height;
+            block_template.header = header;
+            block_template.coinbase_value = coinbase_value;
             
             // Обновляем менеджер заданий
-            job_manager.on_new_block(block_template, config.mining.use_spy_mining);
+            job_manager.on_new_block(block_template, is_speculative);
             
             // Получаем задание и рассылаем ASIC
             if (auto job = job_manager.get_next_job()) {
                 server.broadcast_job(*job);
                 status_reporter.log_event(log::EventType::NEW_BLOCK, 
-                    "Job sent at height " + std::to_string(tmpl.height));
+                    "Job sent at height " + std::to_string(height));
             }
             
             // Обновляем статистику
             log::BitcoinStats btc_stats;
-            btc_stats.height = tmpl.height;
+            btc_stats.height = height;
             btc_stats.connected = true;
             status_reporter.update_bitcoin_stats(btc_stats);
-            
-            log::AsicStats asic_stats;
-            asic_stats.connected_count = static_cast<uint32_t>(server.connection_count());
-            status_reporter.update_asic_stats(asic_stats);
+        });
+        
+        auto shm_result = shm_subscriber->start();
+        if (!shm_result) {
+            std::cerr << "[WARNING] SHM недоступен: " << shm_result.error().message << std::endl;
+            std::cout << "[INFO] Используем fallback режим (Stratum pool)" << std::endl;
+        } else {
+            std::cout << "[INFO] SHM подключён: " << config.shm.path << std::endl;
         }
+    }
+    
+    while (g_running.load(std::memory_order_relaxed)) {
+        // Обновляем статистику ASIC
+        log::AsicStats asic_stats;
+        asic_stats.connected_count = static_cast<uint32_t>(server.connection_count());
+        status_reporter.update_asic_stats(asic_stats);
         
         // Пауза перед следующей итерацией
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -352,6 +323,9 @@ int main(int argc, char* argv[]) {
     // Graceful shutdown
     std::cout << "[INFO] Остановка сервера..." << std::endl;
     
+    if (shm_subscriber) {
+        shm_subscriber->stop();
+    }
     status_reporter.stop();
     server.stop();
     

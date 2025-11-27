@@ -95,6 +95,7 @@ add_subdirectory(src/relay)
 add_subdirectory(src/merged)
 add_subdirectory(src/log)
 add_subdirectory(src/bridge)
+add_subdirectory(src/shm)
 add_subdirectory(src)
 
 # =============================================================================
