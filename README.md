@@ -139,6 +139,74 @@ Avalon-miner/
 - [OPTIMIZATIONS.md](docs/OPTIMIZATIONS.md) — описание всех 17 оптимизаций
 - [BUILDING.md](docs/BUILDING.md) — инструкции по сборке
 - [CONFIGURATION.md](docs/CONFIGURATION.md) — настройка системы
+- [MERGED_MINING.md](docs/MERGED_MINING.md) — merged mining (AuxPoW) для 12 монет
+- [UNIVERSAL_CORE.md](docs/UNIVERSAL_CORE.md) — архитектура Universal AuxPoW Core
+- [MONITORING.md](docs/MONITORING.md) — метрики и мониторинг
+- [OPERATIONS.md](docs/OPERATIONS.md) — операционное руководство
+
+## Reliability & Monitoring
+
+### Fallback System
+
+Автоматическое переключение при недоступности основного источника:
+
+```
+Primary (SHM) ──► ZMQ Fallback ──► Stratum Fallback
+```
+
+### Adaptive Spin-Wait
+
+Многостадийный алгоритм ожидания SHM для баланса латентности и CPU:
+
+| Stage | Действие | CPU | Latency |
+|-------|----------|-----|---------|
+| Spin | Активное ожидание | Высокий | ~100ns |
+| Yield | Thread yield | Средний | ~1μs |
+| Sleep | Sleep 100μs | Низкий | ~100μs |
+
+### Prometheus Metrics
+
+```bash
+# Проверить метрики
+curl http://localhost:9090/metrics
+
+# Основные метрики:
+# - quaxis_hashrate_ths        (Gauge)
+# - quaxis_blocks_found_total  (Counter)
+# - quaxis_latency_ms          (Histogram)
+# - quaxis_asic_connections    (Gauge)
+# - quaxis_fallback_active     (Gauge)
+```
+
+### Health Endpoint
+
+```bash
+curl http://localhost:9090/health
+# {"status": "healthy", "uptime_seconds": 86400, ...}
+```
+
+## Merged Mining (AuxPoW)
+
+Одновременный майнинг Bitcoin и 12 дополнительных SHA-256 монет:
+
+| Монета | Тикер | Ожидаемый доход/мес* |
+|--------|-------|---------------------|
+| Fractal Bitcoin | FB | $25-41 |
+| RSK/Rootstock | RBTC | $10-20 |
+| Syscoin | SYS | $8-12 |
+| Namecoin | NMC | $8-10 |
+| Elastos | ELA | $3-5 |
+| Hathor | HTR | $5-15 |
+| Emercoin | EMC | $1-3 |
+| Myriad | XMY | <$1 |
+| Huntercoin | HUC | <$1 |
+| Unobtanium | UNO | <$1 |
+| Terracoin | TRC | <$1 |
+| VCash | XVC | <$1 |
+
+\* При хешрейте 90 TH/s. Доходность зависит от курса и сложности.
+
+**Суммарный дополнительный доход: $60-105/месяц**
 
 ## Бинарный протокол
 

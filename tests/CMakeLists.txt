@@ -23,6 +23,8 @@ add_executable(quaxis_tests
     test_fallback_manager.cpp
     test_metrics.cpp
     test_health_endpoint.cpp
+    # Тесты для Adaptive Spin-Wait
+    test_adaptive_spin.cpp
     # test_protocol.cpp - Excluded: Protocol API doesn't match test expectations
     # test_coinbase.cpp - Excluded: CoinbaseBuilder API doesn't match test expectations
     # test_relay.cpp - Excluded: Relay API doesn't match test expectations
@@ -40,6 +42,7 @@ target_link_libraries(quaxis_tests PRIVATE
     quaxis_primitives
     quaxis_validation
     quaxis_sync
+    quaxis_shm
     quaxis_bitcoin
     quaxis_mining
     quaxis_network
