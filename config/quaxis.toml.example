@@ -209,3 +209,108 @@ trusted = true
 host = "fibre.us.bitcoinfibre.org"
 port = 8336
 trusted = true
+
+# =============================================================================
+# Merged Mining (AuxPoW) — Дополнительный доход $60-105/месяц
+# =============================================================================
+# Одновременный майнинг Bitcoin и 6+ SHA-256 монет БЕЗ потери хешрейта.
+# Все auxiliary chains используют тот же PoW что и Bitcoin.
+# =============================================================================
+
+[merged_mining]
+# Включить merged mining
+enabled = true
+
+# Интервал проверки состояния chains (секунды)
+health_check_interval = 60
+
+# -----------------------------------------------------------------------------
+# Fractal Bitcoin (FB) — Ожидаемый доход: $25-41/месяц
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "fractal"
+enabled = true
+rpc_url = "http://127.0.0.1:8332"
+rpc_user = "quaxis"
+rpc_password = "your_fractal_rpc_password"
+priority = 100
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# RSK/Rootstock (RBTC) — Ожидаемый доход: $10-20/месяц
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "rsk"
+enabled = true
+rpc_url = "http://127.0.0.1:4444"
+rpc_user = ""
+rpc_password = ""
+priority = 90
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Syscoin (SYS) — Ожидаемый доход: $8-12/месяц
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "syscoin"
+enabled = true
+rpc_url = "http://127.0.0.1:8370"
+rpc_user = "quaxis"
+rpc_password = "your_syscoin_rpc_password"
+priority = 80
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Namecoin (NMC) — Ожидаемый доход: $8-10/месяц
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "namecoin"
+enabled = true
+rpc_url = "http://127.0.0.1:8336"
+rpc_user = "quaxis"
+rpc_password = "your_namecoin_rpc_password"
+priority = 70
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Elastos (ELA) — Ожидаемый доход: $3-5/месяц
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "elastos"
+enabled = true
+rpc_url = "http://127.0.0.1:20336"
+rpc_user = "quaxis"
+rpc_password = "your_elastos_rpc_password"
+priority = 60
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Hathor (HTR) — Ожидаемый доход: $5-15/месяц
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "hathor"
+enabled = true
+rpc_url = "http://127.0.0.1:8080"
+rpc_user = ""
+rpc_password = ""
+priority = 50
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# VCash (XVC) — Ожидаемый доход: <$1/месяц
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "vcash"
+enabled = false  # Отключено по умолчанию из-за низкой доходности
+rpc_url = "http://127.0.0.1:5739"
+rpc_user = "quaxis"
+rpc_password = "your_vcash_rpc_password"
+priority = 10
+rpc_timeout = 30
+update_interval = 5
