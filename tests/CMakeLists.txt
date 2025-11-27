@@ -8,6 +8,9 @@ add_executable(quaxis_tests
     test_sha256.cpp
     test_block.cpp
     test_target.cpp
+    test_version_rolling.cpp
+    test_health_monitor.cpp
+    test_nonce_distributor.cpp
     # test_protocol.cpp - Excluded: Protocol API doesn't match test expectations
     # test_coinbase.cpp - Excluded: CoinbaseBuilder API doesn't match test expectations
     # test_relay.cpp - Excluded: Relay API doesn't match test expectations
@@ -26,6 +29,7 @@ target_link_libraries(quaxis_tests PRIVATE
     quaxis_mining
     quaxis_network
     quaxis_relay
+    quaxis_monitoring
     GTest::gtest
     GTest::gtest_main
 )
