@@ -2,7 +2,9 @@
 
 ## Обзор
 
-Merged Mining позволяет майнить Bitcoin и 6+ дополнительных SHA-256 криптовалют **одновременно**, используя один и тот же Proof of Work. Это означает, что вы можете получать награды от нескольких блокчейнов **без потери хешрейта**.
+Merged Mining позволяет майнить Bitcoin и 12 дополнительных SHA-256 криптовалют **одновременно**, используя один и тот же Proof of Work. Это означает, что вы можете получать награды от нескольких блокчейнов **без потери хешрейта**.
+
+**Note:** Stacks (STX) is NOT supported. Stacks uses Proof of Transfer (PoX), which is fundamentally different from Auxiliary Proof of Work (AuxPoW) and is not compatible with merged mining.
 
 ## Принцип работы
 
@@ -168,6 +170,51 @@ src/merged/
 └── rpc/
     └── aux_rpc_client.hpp/cpp  # RPC клиент для aux chains
 ```
+
+## Добавление новой chain
+
+Для добавления новой AuxPoW chain используйте ChainParams в реестре:
+
+```cpp
+#include "core/chain/chain_registry.hpp"
+
+// В chain_registry.cpp, функция init_builtin_chains():
+{
+    ChainParams params;
+    params.name = "newcoin";
+    params.ticker = "NEW";
+    params.consensus_type = ConsensusType::PURE_AUXPOW;
+    
+    // AuxPoW параметры
+    params.auxpow.chain_id = 42;  // Уникальный ID!
+    params.auxpow.start_height = 100000;
+    params.auxpow.magic_bytes = {0xfa, 0xbe, 0x6d, 0x6d};
+    
+    // Сложность
+    params.difficulty.target_spacing = 120;  // 2 минуты
+    params.difficulty.adjustment_interval = 2016;
+    
+    // Сеть
+    params.mainnet.default_port = 12345;
+    params.mainnet.rpc_port = 12346;
+    
+    register_chain(std::move(params));
+}
+```
+
+Затем создайте класс chain, наследующий `BaseChain`:
+
+```cpp
+class NewCoinChain : public BaseChain {
+public:
+    explicit NewCoinChain(const ChainConfig& config)
+        : BaseChain(config) {}
+        
+    // Переопределите методы если нужна специфичная логика
+};
+```
+
+См. [ADDING_NEW_CHAIN.md](ADDING_NEW_CHAIN.md) для полного руководства.
 
 ## Использование API
 
@@ -352,7 +399,7 @@ rpcport=13332
 A: Нет. Используется тот же PoW, что и для Bitcoin.
 
 **Q: Можно ли добавить свою chain?**
-A: Да. Создайте класс, наследующий `BaseChain`, и добавьте в `ChainManager`.
+A: Да. Добавьте параметры в `ChainRegistry` и создайте класс, наследующий `BaseChain`. См. [ADDING_NEW_CHAIN.md](ADDING_NEW_CHAIN.md).
 
 **Q: Что если aux chain недоступна?**
 A: Майнинг Bitcoin продолжается. Недоступные chains автоматически отключаются.

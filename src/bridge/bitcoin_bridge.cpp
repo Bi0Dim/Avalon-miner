@@ -4,8 +4,6 @@
  */
 
 #include "bitcoin_bridge.hpp"
-#include "../monitoring/alerter.hpp"
-#include "../monitoring/metrics.hpp"
 
 #include <iostream>
 
@@ -73,10 +71,6 @@ struct BitcoinBridge::Impl {
             fallback_manager->signal_job_received();
         }
         
-        // Обновляем метрики
-        monitoring::Metrics::instance().set_bitcoin_connected(true);
-        monitoring::Metrics::instance().set_block_height(height);
-        
         // Вызываем callback
         if (template_callback) {
             template_callback(tmpl);
@@ -135,19 +129,6 @@ struct BitcoinBridge::Impl {
     }
     
     void on_mode_change(fallback::FallbackMode old_mode, fallback::FallbackMode new_mode) {
-        // Обновляем метрики
-        monitoring::Metrics::instance().set_mode(fallback::to_prometheus_value(new_mode));
-        monitoring::Metrics::instance().inc_fallback_switches();
-        
-        // Алертинг
-        if (new_mode == fallback::FallbackMode::PrimarySHM) {
-            monitoring::Alerter::instance().alert_primary_restored();
-        } else {
-            monitoring::Alerter::instance().alert_fallback_activated(
-                fallback::to_string(new_mode)
-            );
-        }
-        
         // Вызываем callback
         if (source_change_callback) {
             source_change_callback(old_mode, new_mode);
@@ -208,8 +189,8 @@ Result<void> BitcoinBridge::start() {
                 impl_->on_stratum_job(job);
             });
             
-            client->set_disconnect_callback([this](const std::string& reason) {
-                monitoring::Alerter::instance().alert_stratum_error("pool", reason);
+            client->set_disconnect_callback([](const std::string& reason) {
+                std::cerr << "[BitcoinBridge] Stratum disconnected: " << reason << std::endl;
             });
         }
         

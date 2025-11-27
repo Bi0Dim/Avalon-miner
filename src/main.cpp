@@ -11,7 +11,7 @@
  * 3. Job Manager - генерация заданий для ASIC
  * 4. TCP Server - связь с ASIC устройствами
  * 5. Share Validator - проверка найденных nonce
- * 6. Stats Collector - мониторинг и статистика
+ * 6. Status Reporter - терминальный вывод статуса
  * 
  * Использование:
  *   quaxis-miner [options]
@@ -33,7 +33,7 @@
 #include "mining/job_manager.hpp"
 #include "mining/share_validator.hpp"
 #include "network/server.hpp"
-#include "monitoring/stats.hpp"
+#include "log/status_reporter.hpp"
 
 #include <iostream>
 #include <format>
@@ -265,17 +265,22 @@ int main(int argc, char* argv[]) {
     // Создаём валидатор shares
     mining::ShareValidator share_validator(job_manager);
     
-    // Создаём сборщик статистики
-    monitoring::StatsCollector stats(config.monitoring);
+    // Создаём репортёр статуса
+    log::LoggingConfig log_config;
+    log_config.refresh_interval_ms = 1000;
+    log_config.color = true;
+    log_config.show_hashrate = true;
+    log_config.show_chain_block_counts = true;
+    log::StatusReporter status_reporter(log_config);
     
     // Создаём TCP сервер
     network::Server server(config.server, job_manager);
     
-    server.set_connected_callback([&stats](const std::string& addr) {
+    server.set_connected_callback([](const std::string& addr) {
         std::cout << "[INFO] ASIC подключён: " << addr << std::endl;
     });
     
-    server.set_disconnected_callback([&stats](const std::string& addr) {
+    server.set_disconnected_callback([](const std::string& addr) {
         std::cout << "[INFO] ASIC отключён: " << addr << std::endl;
     });
     
@@ -297,8 +302,8 @@ int main(int argc, char* argv[]) {
     
     std::cout << "[INFO] Сервер запущен" << std::endl;
     
-    // Запускаем периодический вывод статистики
-    stats.start_periodic_output();
+    // Запускаем репортёр статуса
+    status_reporter.start();
     
     // Основной цикл
     std::cout << "[INFO] Начинаем майнинг..." << std::endl;
@@ -325,15 +330,20 @@ int main(int argc, char* argv[]) {
             // Получаем задание и рассылаем ASIC
             if (auto job = job_manager.get_next_job()) {
                 server.broadcast_job(*job);
-                stats.record_job_sent();
+                status_reporter.log_event(log::EventType::NEW_BLOCK, 
+                    "Job sent at height " + std::to_string(tmpl.height));
             }
             
             // Обновляем статистику
-            stats.update_block_info(tmpl.height, bitcoin::bits_to_difficulty(tmpl.bits));
+            log::BitcoinStats btc_stats;
+            btc_stats.height = tmpl.height;
+            btc_stats.connected = true;
+            status_reporter.update_bitcoin_stats(btc_stats);
+            
+            log::AsicStats asic_stats;
+            asic_stats.connected_count = static_cast<uint32_t>(server.connection_count());
+            status_reporter.update_asic_stats(asic_stats);
         }
-        
-        // Обновляем количество соединений
-        stats.update_connection_count(server.connection_count());
         
         // Пауза перед следующей итерацией
         std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -342,17 +352,10 @@ int main(int argc, char* argv[]) {
     // Graceful shutdown
     std::cout << "[INFO] Остановка сервера..." << std::endl;
     
-    stats.stop_periodic_output();
+    status_reporter.stop();
     server.stop();
     
     std::cout << "[INFO] Quaxis Solo Miner остановлен" << std::endl;
-    
-    // Выводим финальную статистику
-    auto final_stats = stats.get_stats();
-    std::cout << "\n=== Итоговая статистика ===" << std::endl;
-    std::cout << "Время работы: " << monitoring::format_duration(final_stats.uptime) << std::endl;
-    std::cout << "Всего shares: " << final_stats.shares_total << std::endl;
-    std::cout << "Найдено блоков: " << final_stats.blocks_found << std::endl;
     
     return 0;
 }

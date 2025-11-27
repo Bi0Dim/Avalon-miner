@@ -12,7 +12,7 @@ target_link_libraries(quaxis-miner PRIVATE
     quaxis::bitcoin
     quaxis::mining
     quaxis::network
-    quaxis::monitoring
+    quaxis::log
     quaxis::relay
 )
 
