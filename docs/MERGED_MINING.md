@@ -39,10 +39,17 @@ AUXPOW_MAGIC (4 bytes) || AuxMerkleRoot (32 bytes) || TreeSize (4 bytes) || Nonc
 | Elastos | ELA | $3-5 | 20336 |
 | Hathor | HTR | $5-15 | 8080 |
 | VCash | XVC | <$1 | 5739 |
+| Stacks | STX | Experimental* | 20443 |
+| Myriad | XMY | <$1 | 10888 |
+| Huntercoin | HUC | <$1 | 8398 |
+| Emercoin | EMC | $1-3 | 6662 |
+| Unobtanium | UNO | <$1 | 65535 |
+| Terracoin | TRC | <$1 | 13332 |
 
 \* При хешрейте 90 TH/s. Доходность зависит от курса и сложности.
+\* Stacks использует Proof of Transfer (PoX), экспериментальная поддержка.
 
-**Суммарный дополнительный доход: $60-105/месяц**
+**Суммарный дополнительный доход: $65-115/месяц (13 монет)**
 
 ## Конфигурация
 
@@ -154,7 +161,13 @@ src/merged/
 │   ├── namecoin_chain.hpp/cpp
 │   ├── elastos_chain.hpp/cpp
 │   ├── hathor_chain.hpp/cpp
-│   └── vcash_chain.hpp/cpp
+│   ├── vcash_chain.hpp/cpp
+│   ├── stacks_chain.hpp/cpp     # Stacks (STX) — Experimental PoX
+│   ├── myriad_chain.hpp/cpp     # Myriad (XMY) — Multi-algo
+│   ├── huntercoin_chain.hpp/cpp # Huntercoin (HUC)
+│   ├── emercoin_chain.hpp/cpp   # Emercoin (EMC)
+│   ├── unobtanium_chain.hpp/cpp # Unobtanium (UNO)
+│   └── terracoin_chain.hpp/cpp  # Terracoin (TRC)
 └── rpc/
     └── aux_rpc_client.hpp/cpp  # RPC клиент для aux chains
 ```
@@ -268,6 +281,87 @@ iptables -A INPUT -p tcp --dport 8332 -j DROP
 1. Проверьте, все ли chains активны
 2. Обновите ноды до последних версий
 3. Проверьте сетевые задержки
+
+## Дополнительные монеты
+
+### Stacks (STX)
+
+**EXPERIMENTAL**: Stacks использует Proof of Transfer (PoX) вместо классического AuxPoW.
+
+```bash
+# Установка Stacks ноды
+# См. https://docs.stacks.co/docs/nodes-and-miners/
+docker run -d stacks/stacks-blockchain
+
+# API порт по умолчанию: 20443
+```
+
+**Примечание**: Требуется дополнительное исследование совместимости.
+
+### Myriad (XMY)
+
+Multi-algo монета с 5 алгоритмами. Только SHA256 поддерживает merged mining.
+
+```bash
+# myriad.conf
+server=1
+rpcuser=quaxis
+rpcpassword=your_password
+auxpow=1
+rpcport=10888
+```
+
+### Huntercoin (HUC)
+
+Игровая монета с классическим AuxPoW.
+
+```bash
+# huntercoin.conf
+server=1
+rpcuser=quaxis
+rpcpassword=your_password
+auxpow=1
+rpcport=8398
+```
+
+### Emercoin (EMC)
+
+Блокчейн платформа для DNS, SSL, SSH.
+
+```bash
+# emercoin.conf
+server=1
+rpcuser=quaxis
+rpcpassword=your_password
+auxpow=1
+rpcport=6662
+```
+
+### Unobtanium (UNO)
+
+Редкая монета с максимальным supply 250,000 UNO.
+
+```bash
+# unobtanium.conf
+server=1
+rpcuser=quaxis
+rpcpassword=your_password
+auxpow=1
+rpcport=65535
+```
+
+### Terracoin (TRC)
+
+Старый форк Bitcoin с поддержкой merged mining.
+
+```bash
+# terracoin.conf
+server=1
+rpcuser=quaxis
+rpcpassword=your_password
+auxpow=1
+rpcport=13332
+```
 
 ## FAQ
 

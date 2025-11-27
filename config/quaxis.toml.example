@@ -314,3 +314,88 @@ rpc_password = "your_vcash_rpc_password"
 priority = 10
 rpc_timeout = 30
 update_interval = 5
+
+# =============================================================================
+# Дополнительные Merged Mining монеты
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Stacks (STX) — EXPERIMENTAL: Proof of Transfer (PoX)
+# -----------------------------------------------------------------------------
+# ВНИМАНИЕ: Stacks использует PoX вместо классического AuxPoW.
+# Требует дополнительной настройки и тестирования.
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "stacks"
+enabled = false  # По умолчанию выключен — требует настройки PoX
+rpc_url = "http://127.0.0.1:20443"
+rpc_user = ""
+rpc_password = ""
+priority = 85
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Myriad (XMY) — Multi-algo монета (SHA256 merged mining)
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "myriad"
+enabled = true
+rpc_url = "http://127.0.0.1:10888"
+rpc_user = "quaxis"
+rpc_password = "your_myriad_rpc_password"
+priority = 40
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Huntercoin (HUC) — Игровая монета
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "huntercoin"
+enabled = true
+rpc_url = "http://127.0.0.1:8398"
+rpc_user = "quaxis"
+rpc_password = "your_huntercoin_rpc_password"
+priority = 30
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Emercoin (EMC) — DNS, SSL, SSH на блокчейне
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "emercoin"
+enabled = true
+rpc_url = "http://127.0.0.1:6662"
+rpc_user = "quaxis"
+rpc_password = "your_emercoin_rpc_password"
+priority = 50
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Unobtanium (UNO) — Редкая монета (250,000 max supply)
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "unobtanium"
+enabled = true
+rpc_url = "http://127.0.0.1:65535"
+rpc_user = "quaxis"
+rpc_password = "your_unobtanium_rpc_password"
+priority = 35
+rpc_timeout = 30
+update_interval = 5
+
+# -----------------------------------------------------------------------------
+# Terracoin (TRC) — Старый форк Bitcoin
+# -----------------------------------------------------------------------------
+[[merged_mining.chains]]
+name = "terracoin"
+enabled = true
+rpc_url = "http://127.0.0.1:13332"
+rpc_user = "quaxis"
+rpc_password = "your_terracoin_rpc_password"
+priority = 25
+rpc_timeout = 30
+update_interval = 5

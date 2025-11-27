@@ -18,6 +18,13 @@ add_library(quaxis_merged STATIC
     chains/elastos_chain.cpp
     chains/hathor_chain.cpp
     chains/vcash_chain.cpp
+    # Дополнительные chains
+    chains/stacks_chain.cpp
+    chains/myriad_chain.cpp
+    chains/huntercoin_chain.cpp
+    chains/emercoin_chain.cpp
+    chains/unobtanium_chain.cpp
+    chains/terracoin_chain.cpp
     rpc/aux_rpc_client.cpp
 )
 

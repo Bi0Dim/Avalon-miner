@@ -14,6 +14,7 @@ add_executable(quaxis_tests
     test_auxpow.cpp
     test_chain_manager.cpp
     test_merged_integration.cpp
+    test_additional_chains.cpp
     # test_protocol.cpp - Excluded: Protocol API doesn't match test expectations
     # test_coinbase.cpp - Excluded: CoinbaseBuilder API doesn't match test expectations
     # test_relay.cpp - Excluded: Relay API doesn't match test expectations
