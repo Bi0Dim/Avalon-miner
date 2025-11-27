@@ -250,6 +250,5 @@ build/
     ├── crypto/
     ├── bitcoin/
     ├── mining/
-    ├── network/
-    └── monitoring/
+    └── network/
 ```

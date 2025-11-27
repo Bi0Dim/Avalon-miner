@@ -196,7 +196,12 @@ void JobManager::on_new_block(
     impl_->current_template = block_template;
     impl_->is_speculative = is_speculative;
     
-    // Инкрементируем extranonce
+    // Инкрементируем extranonce при каждом новом блоке.
+    // Примечание: уникальность хешей обеспечивается через extranonce,
+    // который инкрементируется при получении каждого нового блока.
+    // Разделение пространства nonce между ASIC НЕ используется —
+    // каждое соединение работает с полным пространством nonce (2^32),
+    // а extranonce гарантирует уникальность между соединениями.
     impl_->current_extranonce++;
     
     // Обновляем шаблон с новым extranonce
