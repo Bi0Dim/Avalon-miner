@@ -380,7 +380,7 @@ update_interval = 5
 [[merged_mining.chains]]
 name = "unobtanium"
 enabled = true
-rpc_url = "http://127.0.0.1:65535"
+rpc_url = "http://127.0.0.1:65530"
 rpc_user = "quaxis"
 rpc_password = "your_unobtanium_rpc_password"
 priority = 35

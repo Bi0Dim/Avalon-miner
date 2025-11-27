@@ -28,12 +28,14 @@ public:
     /**
      * @brief Проверить, поддерживает ли chain классический AuxPoW
      * @return false - Stacks использует PoX
+     * @note Stacks-специфичный метод, не является частью IChain интерфейса
      */
     [[nodiscard]] bool supports_classic_auxpow() const noexcept { return false; }
     
     /**
      * @brief Проверить, поддерживает ли chain Proof of Transfer
      * @return true - Stacks использует PoX
+     * @note Stacks-специфичный метод, не является частью IChain интерфейса
      */
     [[nodiscard]] bool supports_pox() const noexcept { return true; }
     

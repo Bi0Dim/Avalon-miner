@@ -43,7 +43,7 @@ AUXPOW_MAGIC (4 bytes) || AuxMerkleRoot (32 bytes) || TreeSize (4 bytes) || Nonc
 | Myriad | XMY | <$1 | 10888 |
 | Huntercoin | HUC | <$1 | 8398 |
 | Emercoin | EMC | $1-3 | 6662 |
-| Unobtanium | UNO | <$1 | 65535 |
+| Unobtanium | UNO | <$1 | 65530 |
 | Terracoin | TRC | <$1 | 13332 |
 
 \* При хешрейте 90 TH/s. Доходность зависит от курса и сложности.
@@ -347,7 +347,7 @@ server=1
 rpcuser=quaxis
 rpcpassword=your_password
 auxpow=1
-rpcport=65535
+rpcport=65530
 ```
 
 ### Terracoin (TRC)

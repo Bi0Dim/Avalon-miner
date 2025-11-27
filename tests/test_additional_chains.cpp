@@ -170,7 +170,7 @@ protected:
     void SetUp() override {
         config.name = "unobtanium";
         config.enabled = true;
-        config.rpc_url = "http://127.0.0.1:65535";
+        config.rpc_url = "http://127.0.0.1:65530";
         config.priority = 35;
     }
 };
@@ -260,7 +260,7 @@ protected:
         ChainConfig unobtanium;
         unobtanium.name = "unobtanium";
         unobtanium.enabled = true;
-        unobtanium.rpc_url = "http://127.0.0.1:65535";
+        unobtanium.rpc_url = "http://127.0.0.1:65530";
         unobtanium.priority = 35;
         mm_config.chains.push_back(unobtanium);
         
