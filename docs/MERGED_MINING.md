@@ -202,17 +202,8 @@ src/merged/
 }
 ```
 
-Затем создайте класс chain, наследующий `BaseChain`:
-
-```cpp
-class NewCoinChain : public BaseChain {
-public:
-    explicit NewCoinChain(const ChainConfig& config)
-        : BaseChain(config) {}
-        
-    // Переопределите методы если нужна специфичная логика
-};
-```
+Для большинства монет достаточно только регистрации в ChainParams.
+Специфичная RPC-логика реализуется через конфигурацию в `[[merged_mining.chains]]`.
 
 См. [ADDING_NEW_CHAIN.md](ADDING_NEW_CHAIN.md) для полного руководства.
 
@@ -399,7 +390,7 @@ rpcport=13332
 A: Нет. Используется тот же PoW, что и для Bitcoin.
 
 **Q: Можно ли добавить свою chain?**
-A: Да. Добавьте параметры в `ChainRegistry` и создайте класс, наследующий `BaseChain`. См. [ADDING_NEW_CHAIN.md](ADDING_NEW_CHAIN.md).
+A: Да. Добавьте параметры в `ChainRegistry`. См. [ADDING_NEW_CHAIN.md](ADDING_NEW_CHAIN.md).
 
 **Q: Что если aux chain недоступна?**
 A: Майнинг Bitcoin продолжается. Недоступные chains автоматически отключаются.
