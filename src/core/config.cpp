@@ -14,14 +14,6 @@
 namespace quaxis {
 
 // =============================================================================
-// BitcoinConfig
-// =============================================================================
-
-std::string BitcoinConfig::get_rpc_url() const {
-    return std::format("http://{}:{}/", rpc_host, rpc_port);
-}
-
-// =============================================================================
 // Config - Загрузка из файла
 // =============================================================================
 
@@ -53,22 +45,26 @@ Result<Config> Config::load(const std::filesystem::path& path) {
             }
         }
         
-        // === Секция [bitcoin] ===
-        if (auto bitcoin = table["bitcoin"].as_table()) {
-            if (auto val = (*bitcoin)["rpc_host"].value<std::string>()) {
-                config.bitcoin.rpc_host = *val;
+        // === Секция [parent_chain] ===
+        if (auto parent_chain = table["parent_chain"].as_table()) {
+            if (auto val = (*parent_chain)["headers_source"].value<std::string>()) {
+                config.parent_chain.headers_source = *val;
             }
-            if (auto val = (*bitcoin)["rpc_port"].value<int64_t>()) {
-                config.bitcoin.rpc_port = static_cast<uint16_t>(*val);
+            if (auto val = (*parent_chain)["mtp_refresh_seconds"].value<int64_t>()) {
+                config.parent_chain.mtp_refresh_seconds = static_cast<uint32_t>(*val);
             }
-            if (auto val = (*bitcoin)["rpc_user"].value<std::string>()) {
-                config.bitcoin.rpc_user = *val;
+            if (auto val = (*parent_chain)["payout_address"].value<std::string>()) {
+                config.parent_chain.payout_address = *val;
             }
-            if (auto val = (*bitcoin)["rpc_password"].value<std::string>()) {
-                config.bitcoin.rpc_password = *val;
-            }
-            if (auto val = (*bitcoin)["payout_address"].value<std::string>()) {
-                config.bitcoin.payout_address = *val;
+            
+            // Парсим seed_nodes
+            if (auto nodes = (*parent_chain)["seed_nodes"].as_array()) {
+                config.parent_chain.seed_nodes.clear();
+                for (const auto& node : *nodes) {
+                    if (auto val = node.value<std::string>()) {
+                        config.parent_chain.seed_nodes.push_back(*val);
+                    }
+                }
             }
         }
         
@@ -102,21 +98,42 @@ Result<Config> Config::load(const std::filesystem::path& path) {
             if (auto val = (*shm)["path"].value<std::string>()) {
                 config.shm.path = *val;
             }
-            if (auto val = (*shm)["spin_wait"].value<bool>()) {
-                config.shm.spin_wait = *val;
+            if (auto val = (*shm)["adaptive_spin_enabled"].value<bool>()) {
+                config.shm.adaptive_spin_enabled = *val;
+            }
+            if (auto val = (*shm)["spin_phase1_iterations"].value<int64_t>()) {
+                config.shm.spin_phase1_iterations = static_cast<uint32_t>(*val);
+            }
+            if (auto val = (*shm)["spin_phase2_iterations"].value<int64_t>()) {
+                config.shm.spin_phase2_iterations = static_cast<uint32_t>(*val);
+            }
+            if (auto val = (*shm)["sleep_us"].value<int64_t>()) {
+                config.shm.sleep_us = static_cast<uint32_t>(*val);
             }
         }
         
-        // === Секция [monitoring] ===
-        if (auto monitoring = table["monitoring"].as_table()) {
-            if (auto val = (*monitoring)["stats_interval"].value<int64_t>()) {
-                config.monitoring.stats_interval = static_cast<uint32_t>(*val);
+        // === Секция [logging] ===
+        if (auto logging = table["logging"].as_table()) {
+            if (auto val = (*logging)["refresh_interval_ms"].value<int64_t>()) {
+                config.logging.refresh_interval_ms = static_cast<uint32_t>(*val);
             }
-            if (auto val = (*monitoring)["log_level"].value<std::string>()) {
-                config.monitoring.log_level = *val;
+            if (auto val = (*logging)["level"].value<std::string>()) {
+                config.logging.level = *val;
             }
-            if (auto val = (*monitoring)["log_file"].value<std::string>()) {
-                config.monitoring.log_file = *val;
+            if (auto val = (*logging)["event_history"].value<int64_t>()) {
+                config.logging.event_history = static_cast<std::size_t>(*val);
+            }
+            if (auto val = (*logging)["color"].value<bool>()) {
+                config.logging.color = *val;
+            }
+            if (auto val = (*logging)["show_hashrate"].value<bool>()) {
+                config.logging.show_hashrate = *val;
+            }
+            if (auto val = (*logging)["highlight_found_blocks"].value<bool>()) {
+                config.logging.highlight_found_blocks = *val;
+            }
+            if (auto val = (*logging)["show_chain_block_counts"].value<bool>()) {
+                config.logging.show_chain_block_counts = *val;
             }
         }
         
@@ -214,28 +231,31 @@ Result<Config> Config::load_with_search(
 // =============================================================================
 
 Result<void> Config::validate() const {
-    // Проверка обязательных полей
-    if (bitcoin.rpc_password.empty()) {
+    // Проверка адреса выплаты
+    if (parent_chain.payout_address.empty()) {
         return Err<void>(
             ErrorCode::ConfigInvalidValue,
-            "RPC пароль не указан (bitcoin.rpc_password)"
-        );
-    }
-    
-    if (bitcoin.payout_address.empty()) {
-        return Err<void>(
-            ErrorCode::ConfigInvalidValue,
-            "Адрес для выплаты не указан (bitcoin.payout_address)"
+            "Адрес для выплаты не указан (parent_chain.payout_address)"
         );
     }
     
     // Проверка формата адреса (должен начинаться с bc1q для P2WPKH)
-    if (!bitcoin.payout_address.starts_with("bc1q") &&
-        !bitcoin.payout_address.starts_with("tb1q") &&  // testnet
-        !bitcoin.payout_address.starts_with("bcrt1q")) { // regtest
+    if (!parent_chain.payout_address.starts_with("bc1q") &&
+        !parent_chain.payout_address.starts_with("tb1q") &&  // testnet
+        !parent_chain.payout_address.starts_with("bcrt1q")) { // regtest
         return Err<void>(
             ErrorCode::ConfigInvalidValue,
             "Адрес должен быть в формате P2WPKH (bc1q...)"
+        );
+    }
+    
+    // Проверка источника заголовков
+    if (parent_chain.headers_source != "p2p" &&
+        parent_chain.headers_source != "fibre" &&
+        parent_chain.headers_source != "trusted") {
+        return Err<void>(
+            ErrorCode::ConfigInvalidValue,
+            "headers_source должен быть 'p2p', 'fibre' или 'trusted'"
         );
     }
     

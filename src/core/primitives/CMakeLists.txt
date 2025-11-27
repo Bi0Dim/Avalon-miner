@@ -8,6 +8,7 @@ add_library(quaxis_primitives STATIC
     block_header.cpp
     merkle.cpp
     auxpow.cpp
+    ../template_generator.cpp
 )
 
 target_include_directories(quaxis_primitives PUBLIC

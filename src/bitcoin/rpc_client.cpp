@@ -1,6 +1,6 @@
 /**
  * @file rpc_client.cpp
- * @brief Реализация HTTP клиента для Bitcoin Core RPC
+ * @brief Реализация HTTP клиента для RPC
  * 
  * Использует libcurl для HTTP POST запросов.
  * JSON-RPC 1.0 протокол.
@@ -24,11 +24,11 @@ struct RpcClient::Impl {
     std::string auth;  // Base64 encoded "user:password"
     CURL* curl = nullptr;
     
-    Impl(const BitcoinConfig& config) {
-        url = config.get_rpc_url();
+    Impl(const RpcConfig& config) {
+        url = config.get_url();
         
         // Base64 кодирование credentials
-        std::string credentials = config.rpc_user + ":" + config.rpc_password;
+        std::string credentials = config.user + ":" + config.password;
         auth = base64_encode(credentials);
         
         curl = curl_easy_init();
@@ -36,7 +36,7 @@ struct RpcClient::Impl {
             // Установка базовых опций
             curl_easy_setopt(curl, CURLOPT_POST, 1L);
             curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-            curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
+            curl_easy_setopt(curl, CURLOPT_TIMEOUT, static_cast<long>(config.timeout));
             curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
         }
     }
@@ -238,7 +238,7 @@ struct RpcClient::Impl {
 // RpcClient
 // =============================================================================
 
-RpcClient::RpcClient(const BitcoinConfig& config)
+RpcClient::RpcClient(const RpcConfig& config)
     : impl_(std::make_unique<Impl>(config))
 {
 }

@@ -3,7 +3,7 @@
  * @brief Конфигурация Quaxis Solo Miner
  * 
  * Загрузка и парсинг конфигурации из TOML файла.
- * Поддерживает все настройки сервера, Bitcoin RPC, майнинга и мониторинга.
+ * Поддерживает все настройки сервера, parent chain, майнинга и логирования.
  * 
  * Пример конфигурации (quaxis.toml):
  * @code
@@ -12,11 +12,10 @@
  * port = 3333
  * max_connections = 10
  * 
- * [bitcoin]
- * rpc_host = "127.0.0.1"
- * rpc_port = 8332
- * rpc_user = "quaxis"
- * rpc_password = "password"
+ * [parent_chain]
+ * headers_source = "p2p"
+ * seed_nodes = ["seed.bitcoin.sipa.be", "dnsseed.bluematt.me"]
+ * mtp_refresh_seconds = 60
  * payout_address = "bc1q..."
  * 
  * [mining]
@@ -29,11 +28,11 @@
  * [shm]
  * enabled = true
  * path = "/quaxis_block"
- * spin_wait = true
+ * adaptive_spin_enabled = true
  * 
- * [monitoring]
- * stats_interval = 60
- * log_level = "info"
+ * [logging]
+ * refresh_interval_ms = 1000
+ * level = "info"
  * @endcode
  */
 
@@ -67,29 +66,28 @@ struct ServerConfig {
 };
 
 /**
- * @brief Настройки подключения к Bitcoin Core
+ * @brief Настройки родительской цепочки (Bitcoin)
+ * 
+ * Определяет источник заголовков блоков и параметры синхронизации.
+ * Universal AuxPoW Core работает автономно без внешнего Bitcoin Core.
  */
-struct BitcoinConfig {
-    /// @brief Хост Bitcoin Core RPC
-    std::string rpc_host = "127.0.0.1";
+struct ParentChainConfig {
+    /// @brief Источник заголовков: "p2p", "fibre", "trusted"
+    std::string headers_source = "p2p";
     
-    /// @brief Порт Bitcoin Core RPC
-    uint16_t rpc_port = constants::BITCOIN_RPC_PORT_MAINNET;
+    /// @brief Seed ноды для P2P подключения
+    std::vector<std::string> seed_nodes = {
+        "seed.bitcoin.sipa.be",
+        "dnsseed.bluematt.me",
+        "seed.bitcoinstats.com",
+        "seed.bitcoin.jonasschnelli.ch"
+    };
     
-    /// @brief Имя пользователя RPC
-    std::string rpc_user = "quaxis";
-    
-    /// @brief Пароль RPC
-    std::string rpc_password;
+    /// @brief Интервал обновления MTP (секунды)
+    uint32_t mtp_refresh_seconds = 60;
     
     /// @brief Адрес для выплаты награды (P2WPKH формат bc1q...)
     std::string payout_address;
-    
-    /**
-     * @brief Получить URL для RPC запросов
-     * @return URL в формате "http://host:port/"
-     */
-    [[nodiscard]] std::string get_rpc_url() const;
 };
 
 /**
@@ -125,22 +123,43 @@ struct ShmConfig {
     /// @brief Путь к shared memory объекту
     std::string path = constants::DEFAULT_SHM_PATH;
     
-    /// @brief Использовать spin-wait вместо блокировки
-    bool spin_wait = true;
+    /// @brief Использовать адаптивный spin-wait
+    bool adaptive_spin_enabled = true;
+    
+    /// @brief Количество итераций фазы 1 (spin)
+    uint32_t spin_phase1_iterations = 2000;
+    
+    /// @brief Количество итераций фазы 2 (yield)
+    uint32_t spin_phase2_iterations = 2000;
+    
+    /// @brief Время sleep в микросекундах (фаза 3)
+    uint32_t sleep_us = 200;
 };
 
 /**
- * @brief Настройки мониторинга и логирования
+ * @brief Настройки логирования и терминального вывода
  */
-struct MonitoringConfig {
-    /// @brief Интервал вывода статистики в секундах
-    uint32_t stats_interval = 60;
+struct LoggingConfig {
+    /// @brief Интервал обновления экрана (мс)
+    uint32_t refresh_interval_ms = 1000;
     
-    /// @brief Уровень логирования: "debug", "info", "warning", "error"
-    std::string log_level = "info";
+    /// @brief Уровень логирования: "error", "warn", "info", "debug"
+    std::string level = "info";
     
-    /// @brief Путь к файлу лога (пустой = stdout)
-    std::string log_file;
+    /// @brief Размер истории событий
+    std::size_t event_history = 200;
+    
+    /// @brief Использовать цветной вывод
+    bool color = true;
+    
+    /// @brief Показывать хешрейт
+    bool show_hashrate = true;
+    
+    /// @brief Подсвечивать найденные блоки
+    bool highlight_found_blocks = true;
+    
+    /// @brief Показывать счётчики блоков по chains
+    bool show_chain_block_counts = true;
 };
 
 /**
@@ -191,10 +210,10 @@ struct RelayConfig {
  */
 struct Config {
     ServerConfig server;
-    BitcoinConfig bitcoin;
+    ParentChainConfig parent_chain;
     MiningConfig mining;
     ShmConfig shm;
-    MonitoringConfig monitoring;
+    LoggingConfig logging;
     RelayConfig relay;
     
     /**
