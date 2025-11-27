@@ -1,17 +1,19 @@
 # =============================================================================
 # Quaxis Solo Miner - Monitoring модуль
 # =============================================================================
-# Статистика, логирование и мониторинг здоровья
+# Статистика, логирование, мониторинг здоровья и метрики Prometheus
 # =============================================================================
 
 add_library(quaxis_monitoring STATIC
     stats.cpp
     health_monitor.cpp
     alert_manager.cpp
+    metrics.cpp
+    alerter.cpp
 )
 
 target_include_directories(quaxis_monitoring PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_SOURCE_DIR}/src
 )
 
 target_link_libraries(quaxis_monitoring PUBLIC
