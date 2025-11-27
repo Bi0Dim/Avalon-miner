@@ -12,6 +12,13 @@
 #include "chains/elastos_chain.hpp"
 #include "chains/hathor_chain.hpp"
 #include "chains/vcash_chain.hpp"
+// Дополнительные chains
+#include "chains/stacks_chain.hpp"
+#include "chains/myriad_chain.hpp"
+#include "chains/huntercoin_chain.hpp"
+#include "chains/emercoin_chain.hpp"
+#include "chains/unobtanium_chain.hpp"
+#include "chains/terracoin_chain.hpp"
 
 #include <thread>
 #include <atomic>
@@ -49,6 +56,25 @@ std::unique_ptr<IChain> create_chain(const ChainConfig& config) {
     }
     if (config.name == "vcash") {
         return std::make_unique<VCashChain>(config);
+    }
+    // Дополнительные chains
+    if (config.name == "stacks") {
+        return std::make_unique<StacksChain>(config);
+    }
+    if (config.name == "myriad") {
+        return std::make_unique<MyriadChain>(config);
+    }
+    if (config.name == "huntercoin") {
+        return std::make_unique<HuntercoinChain>(config);
+    }
+    if (config.name == "emercoin") {
+        return std::make_unique<EmercoinChain>(config);
+    }
+    if (config.name == "unobtanium") {
+        return std::make_unique<UnobtaniumChain>(config);
+    }
+    if (config.name == "terracoin") {
+        return std::make_unique<TerracoinChain>(config);
     }
     
     return nullptr;
