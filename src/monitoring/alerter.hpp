@@ -18,6 +18,7 @@
 #include <memory>
 #include <mutex>
 #include <string>
+#include <unordered_map>
 #include <string_view>
 
 namespace quaxis::monitoring {

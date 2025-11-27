@@ -257,8 +257,12 @@ bool BitcoinBridge::is_bitcoin_connected() const {
             return impl_->shm_subscriber && impl_->shm_subscriber->is_running();
             
         case fallback::FallbackMode::FallbackZMQ:
-            // ZMQ health check
-            return true;  // TODO: реальная проверка
+            // ZMQ health determined by fallback manager's ZMQ health status
+            if (impl_->fallback_manager) {
+                auto health = impl_->fallback_manager->get_zmq_health();
+                return health.available;
+            }
+            return false;
             
         case fallback::FallbackMode::FallbackStratum:
             return impl_->fallback_manager && 
