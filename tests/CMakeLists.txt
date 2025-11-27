@@ -10,6 +10,7 @@ add_executable(quaxis_tests
     test_target.cpp
     test_version_rolling.cpp
     test_nonce_distributor.cpp
+    test_extranonce_manager.cpp
     test_auxpow.cpp
     test_chain_manager.cpp
     test_merged_integration.cpp

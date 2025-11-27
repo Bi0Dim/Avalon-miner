@@ -6,6 +6,7 @@
 #include "template_generator.hpp"
 #include "primitives/merkle.hpp"
 #include "../crypto/sha256.hpp"
+#include "../bitcoin/address.hpp"
 
 #include <chrono>
 #include <cstring>
@@ -46,6 +47,10 @@ struct TemplateGenerator::Impl {
     TemplateGeneratorConfig config;
     MtpCalculator mtp_calculator;
     
+    // Parsed payout pubkey hash from payout_address
+    Hash160 payout_pubkey_hash{};
+    bool has_valid_payout_address{false};
+    
     // Текущее состояние chain
     Hash256 prev_hash{};
     uint32_t height{0};
@@ -55,7 +60,16 @@ struct TemplateGenerator::Impl {
     
     mutable std::mutex mutex_;
     
-    explicit Impl(const TemplateGeneratorConfig& cfg) : config(cfg) {}
+    explicit Impl(const TemplateGeneratorConfig& cfg) : config(cfg) {
+        // Parse the payout address to get the pubkey hash
+        if (!config.payout_address.empty()) {
+            auto result = bitcoin::parse_p2wpkh_address(config.payout_address);
+            if (result) {
+                payout_pubkey_hash = *result;
+                has_valid_payout_address = true;
+            }
+        }
+    }
     
     /**
      * @brief Создать coinbase транзакцию
@@ -140,15 +154,21 @@ struct TemplateGenerator::Impl {
         }
         
         // Output script - P2WPKH (22 bytes: OP_0 OP_PUSH20 <20-byte-hash>)
-        // NOTE: This is a placeholder implementation for template generation only.
-        // The actual mining flow uses bitcoin::CoinbaseBuilder which properly
-        // derives the pubkey hash from the payout_address via bech32 decoding.
-        // This placeholder is sufficient for midstate calculation and job creation.
-        coinbase.push_back(0x16);  // Script length
+        coinbase.push_back(0x16);  // Script length (22 bytes)
         coinbase.push_back(0x00);  // OP_0
         coinbase.push_back(0x14);  // OP_PUSH20
-        // 20-byte pubkey hash placeholder
-        coinbase.insert(coinbase.end(), 20, 0x00);
+        
+        // Use REAL pubkey hash from parsed payout_address
+        // CRITICAL: This ensures mining rewards go to the correct address!
+        if (has_valid_payout_address) {
+            for (auto byte : payout_pubkey_hash) {
+                coinbase.push_back(byte);
+            }
+        } else {
+            // Fallback: 20-byte zero pubkey hash (will trigger validation error on startup)
+            // This should never happen in production as validate() checks payout_address
+            coinbase.insert(coinbase.end(), 20, 0x00);
+        }
         
         // Locktime (4 bytes)
         coinbase.push_back(0x00);

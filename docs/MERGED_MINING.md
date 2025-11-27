@@ -65,16 +65,58 @@ health_check_interval = 60  # секунды
 
 ### Настройка отдельных chains
 
+**⚠️ КРИТИЧЕСКИ ВАЖНО: PAYOUT ADDRESS**
+
+Каждая chain **ОБЯЗАТЕЛЬНО** должна иметь `payout_address`!
+Без адреса награды за найденные блоки будут **ПОТЕРЯНЫ НАВСЕГДА**.
+
 ```toml
 [[merged_mining.chains]]
-name = "fractal"           # Имя chain
-enabled = true             # Включена ли chain
+name = "fractal"                    # Имя chain
+enabled = true                      # Включена ли chain
 rpc_url = "http://127.0.0.1:8332"  # URL ноды
-rpc_user = "quaxis"        # RPC пользователь
-rpc_password = "password"  # RPC пароль
-priority = 100            # Приоритет (выше = важнее)
-rpc_timeout = 30          # Таймаут RPC (секунды)
-update_interval = 5       # Интервал обновления шаблона
+rpc_user = "quaxis"                 # RPC пользователь
+rpc_password = "password"           # RPC пароль
+payout_address = "bc1q..."          # ⚠️ ОБЯЗАТЕЛЬНО! Ваш адрес для выплаты
+priority = 100                      # Приоритет (выше = важнее)
+rpc_timeout = 30                    # Таймаут RPC (секунды)
+update_interval = 5                 # Интервал обновления шаблона
+```
+
+### Настройка кошельков (Wallet Setup)
+
+Для каждой chain вам нужен кошелёк с адресом для получения наград.
+
+#### Форматы адресов по chain:
+
+| Chain | Формат адреса | Как получить |
+|-------|---------------|--------------|
+| Fractal | `bc1q...` | Bitcoin-совместимый кошелёк |
+| RSK | `0x...` | MetaMask или RSK-совместимый кошелёк |
+| Syscoin | `sys1q...` | Syscoin Core wallet |
+| Namecoin | `N...` или `nc1q...` | Namecoin Core wallet |
+| Elastos | `E...` | Elastos Essentials wallet |
+| Hathor | `H...` | Hathor wallet |
+| Emercoin | `E...` | Emercoin Core wallet |
+| Myriad | `M...` | Myriad Core wallet |
+| VCash | `V...` | VCash wallet |
+| Huntercoin | `H...` | Huntercoin wallet |
+| Unobtanium | `u...` | Unobtanium wallet |
+| Terracoin | `1...` | Terracoin wallet |
+
+#### Получение адреса из wallet:
+
+```bash
+# Namecoin
+namecoin-cli getnewaddress
+
+# Syscoin
+syscoin-cli getnewaddress
+
+# RSK - используйте MetaMask или:
+curl -X POST http://localhost:4444 \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"eth_accounts","params":[],"id":1}'
 ```
 
 ### Приоритеты

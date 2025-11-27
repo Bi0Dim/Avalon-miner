@@ -205,6 +205,63 @@ struct RelayConfig {
     std::vector<RelayPeerConfig> peers;
 };
 
+// =============================================================================
+// Merged Mining Configuration
+// =============================================================================
+
+/**
+ * @brief Конфигурация одной auxiliary chain для merged mining
+ */
+struct MergedChainConfig {
+    /// @brief Название chain (например, "fractal", "namecoin")
+    std::string name;
+    
+    /// @brief Включена ли chain
+    bool enabled{true};
+    
+    /// @brief URL для RPC подключения
+    std::string rpc_url;
+    
+    /// @brief Имя пользователя RPC (опционально)
+    std::string rpc_user;
+    
+    /// @brief Пароль RPC (опционально)
+    std::string rpc_password;
+    
+    /// @brief Адрес для получения награды за найденный блок
+    /// КРИТИЧЕСКИ ВАЖНО: Без этого адреса награды будут потеряны!
+    /// Формат зависит от chain:
+    /// - Namecoin: N... или nc1q... (bech32)
+    /// - Syscoin: sys1q... (bech32)
+    /// - RSK: 0x... (Ethereum-style)
+    /// - Elastos: E...
+    /// - и т.д.
+    std::string payout_address;
+    
+    /// @brief Приоритет (выше = важнее)
+    uint32_t priority{50};
+    
+    /// @brief Таймаут RPC запросов (секунды)
+    uint32_t rpc_timeout{30};
+    
+    /// @brief Интервал обновления шаблона (секунды)
+    uint32_t update_interval{5};
+};
+
+/**
+ * @brief Конфигурация merged mining
+ */
+struct MergedMiningConfig {
+    /// @brief Включен ли merged mining
+    bool enabled{false};
+    
+    /// @brief Конфигурации отдельных chains
+    std::vector<MergedChainConfig> chains;
+    
+    /// @brief Интервал проверки состояния chains (секунды)
+    uint32_t health_check_interval{60};
+};
+
 /**
  * @brief Полная конфигурация Quaxis Solo Miner
  */
@@ -215,6 +272,7 @@ struct Config {
     ShmConfig shm;
     LoggingConfig logging;
     RelayConfig relay;
+    MergedMiningConfig merged_mining;
     
     /**
      * @brief Загрузить конфигурацию из TOML файла
