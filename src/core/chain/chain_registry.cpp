@@ -231,13 +231,13 @@ void ChainRegistry::init_builtin_chains() {
         register_chain(std::move(params));
     }
     
-    // Huntercoin (chain_id = 2)
+    // Huntercoin (chain_id = 12)
     {
         ChainParams params;
         params.name = "huntercoin";
         params.ticker = "HUC";
         params.consensus_type = ConsensusType::PURE_AUXPOW;
-        params.auxpow.chain_id = 2;
+        params.auxpow.chain_id = 12;
         params.auxpow.start_height = 0;
         params.difficulty.target_spacing = 60;
         params.difficulty.adjustment_interval = 1;

@@ -22,6 +22,7 @@ quaxis-server --config /path/to/quaxis.toml
 ```toml
 # =============================================================================
 # Quaxis Solo Miner - Конфигурация сервера
+# Universal AuxPoW Core - автономный режим
 # =============================================================================
 
 [server]
@@ -34,18 +35,13 @@ max_connections = 10
 # Размер буфера сокета (байт)
 socket_buffer_size = 65536
 
-[bitcoin]
-# Адрес RPC Bitcoin Core
-rpc_host = "127.0.0.1"
-# Порт RPC Bitcoin Core
-rpc_port = 8332
-# Имя пользователя RPC
-rpc_user = "quaxis"
-# Пароль RPC (ОБЯЗАТЕЛЬНО ИЗМЕНИТЬ!)
-rpc_password = "your_secure_password_here"
-# Таймаут RPC запросов (секунды)
-rpc_timeout = 30
-
+[parent_chain]
+# Источник заголовков: "p2p", "fibre" или "trusted"
+headers_source = "p2p"
+# Seed ноды для P2P подключения
+seed_nodes = ["seed.bitcoin.sipa.be", "dnsseed.bluematt.me"]
+# Интервал обновления MTP (секунды)
+mtp_refresh_seconds = 60
 # Адрес для получения награды (P2WPKH - bc1q...)
 payout_address = "bc1qrpamkfhuragxrfx8a9c28drcwygdwsgkzk2ykq"
 
@@ -68,10 +64,14 @@ empty_blocks = true
 enabled = true
 # Путь к shared memory
 path = "/quaxis_block"
-# Использовать spin-wait (низкая латентность, высокое CPU)
-spin_wait = true
-# Интервал polling (микросекунды, если spin_wait=false)
-poll_interval_us = 100
+# Использовать адаптивный spin-wait
+adaptive_spin_enabled = true
+# Количество итераций фазы 1 (spin)
+spin_phase1_iterations = 2000
+# Количество итераций фазы 2 (yield)
+spin_phase2_iterations = 2000
+# Время sleep в микросекундах (фаза 3)
+sleep_us = 200
 
 [logging]
 # Интервал обновления экрана (миллисекунды)
@@ -84,6 +84,10 @@ event_history = 200
 color = true
 # Показывать хешрейт
 show_hashrate = true
+# Подсвечивать найденные блоки
+highlight_found_blocks = true
+# Показывать счётчики блоков по chains
+show_chain_block_counts = true
 ```
 
 ### Параметры секции [server]
@@ -95,15 +99,13 @@ show_hashrate = true
 | max_connections | int | 10 | Макс. подключений ASIC |
 | socket_buffer_size | int | 65536 | Размер буфера сокета |
 
-### Параметры секции [bitcoin]
+### Параметры секции [parent_chain]
 
 | Параметр | Тип | По умолчанию | Описание |
 |----------|-----|--------------|----------|
-| rpc_host | string | "127.0.0.1" | Адрес Bitcoin Core RPC |
-| rpc_port | int | 8332 | Порт Bitcoin Core RPC |
-| rpc_user | string | - | Имя пользователя RPC |
-| rpc_password | string | - | Пароль RPC |
-| rpc_timeout | int | 30 | Таймаут RPC (секунды) |
+| headers_source | string | "p2p" | Источник заголовков: p2p, fibre, trusted |
+| seed_nodes | array | [...] | Seed ноды для P2P |
+| mtp_refresh_seconds | int | 60 | Интервал обновления MTP |
 | payout_address | string | - | Адрес для награды |
 
 ### Параметры секции [mining]
@@ -123,255 +125,41 @@ show_hashrate = true
 |----------|-----|--------------|----------|
 | enabled | bool | true | Включить SHM |
 | path | string | "/quaxis_block" | Путь к SHM |
-| spin_wait | bool | true | Spin-wait режим |
+| adaptive_spin_enabled | bool | true | Адаптивный spin-wait |
+| spin_phase1_iterations | int | 2000 | Итерации фазы 1 (spin) |
+| spin_phase2_iterations | int | 2000 | Итерации фазы 2 (yield) |
+| sleep_us | int | 200 | Sleep в микросекундах |
+
+### Параметры секции [logging]
+
+| Параметр | Тип | По умолчанию | Описание |
+|----------|-----|--------------|----------|
+| refresh_interval_ms | int | 1000 | Интервал обновления экрана |
+| level | string | "info" | Уровень логирования |
+| event_history | int | 200 | Размер истории событий |
+| color | bool | true | Цветной вывод |
+| show_hashrate | bool | true | Показывать хешрейт |
+| highlight_found_blocks | bool | true | Подсвечивать найденные блоки |
+| show_chain_block_counts | bool | true | Показывать счётчики |
 | poll_interval_us | int | 100 | Интервал polling |
 
-## Конфигурация Bitcoin Core
-
-### Расположение файла
-
-```bash
-# Linux
-~/.bitcoin/bitcoin.conf
-
-# Создание каталога
-mkdir -p ~/.bitcoin
-```
-
-### Оптимизированная конфигурация
-
-```ini
-# =============================================================================
-# Bitcoin Core - Оптимизированная конфигурация для Quaxis
-# =============================================================================
-
-# === ОСНОВНЫЕ ===
-# Mainnet
-#testnet=0
-#regtest=0
-
-# Отключение GUI (для сервера)
-daemon=1
-
-# === СЕТЬ ===
-# Максимум соединений
-maxconnections=256
-# Исходящих соединений
-maxoutboundconnections=16
-
-# Быстрые seed ноды
-addnode=seed.bitcoin.sipa.be
-addnode=dnsseed.bluematt.me
-addnode=seed.bitcoinstats.com
-addnode=seed.bitcoin.jonasschnelli.ch
-addnode=seed.btc.petertodd.org
-addnode=seed.bitcoin.sprovoost.nl
-
-# Прослушивание входящих
-listen=1
-
-# UPnP (если за NAT)
-upnp=1
-
-# === COMPACT BLOCKS ===
-# Хранить транзакции для реконструкции блоков
-blockreconstructionextratxn=100000
-
-# === MEMPOOL ===
-# Размер mempool (MB)
-maxmempool=1000
-# Время хранения транзакций (часы)
-mempoolexpiry=336
-
-# === ZMQ (запасной канал) ===
-# Hash нового блока
-zmqpubhashblock=tcp://127.0.0.1:28332
-# Сырой блок
-zmqpubrawblock=tcp://127.0.0.1:28333
-
-# === ПРОИЗВОДИТЕЛЬНОСТЬ ===
-# Потоки проверки подписей (0 = auto)
-par=0
-# Кеш UTXO (MB)
-dbcache=4096
-# Не хранить транзакции в txindex
-txindex=0
-
-# === WALLET ===
-# Отключить wallet (не нужен для майнинга)
-disablewallet=1
-
-# === RPC ===
-server=1
-# Имя пользователя (ИЗМЕНИТЬ!)
-rpcuser=quaxis
-# Пароль (ИЗМЕНИТЬ!)
-rpcpassword=CHANGE_THIS_PASSWORD
-# Разрешённые IP
-rpcallowip=127.0.0.1
-# Порт
-rpcport=8332
-# Потоки RPC
-rpcthreads=4
-# Размер очереди RPC
-rpcworkqueue=64
-
-# === ЛОГИРОВАНИЕ ===
-# Уровень отладки
-debug=0
-# Логировать timestamps
-logtimestamps=1
-# Файл логов
-#debuglogfile=/var/log/bitcoin/debug.log
-
-# === QUAXIS ПАТЧИ ===
-# Включить Shared Memory bridge (требует патч)
-quaxisshm=1
-# Путь к SHM
-quaxisshmpath=/quaxis_block
-# Включить spy mining (требует патч)
-quaxisspymining=1
-# Приоритет block сообщений (требует патч)
-quaxisblockpriority=1
-```
-
-## Генерация безопасного пароля
-
-```bash
-# Генерация случайного пароля
-openssl rand -hex 32
-
-# Или
-head -c 32 /dev/urandom | xxd -p | tr -d '\n'
-```
 
 ## Проверка конфигурации
 
 ### Проверка quaxis.toml
 
 ```bash
-quaxis-server --check-config --config quaxis.toml
-```
-
-### Проверка bitcoin.conf
-
-```bash
-bitcoind -conf=/path/to/bitcoin.conf -debug=1 -printtoconsole
-```
-
-### Проверка RPC соединения
-
-```bash
-curl --user quaxis:password \
-     --data-binary '{"jsonrpc": "1.0", "method": "getblockchaininfo"}' \
-     -H 'content-type: text/plain;' \
-     http://127.0.0.1:8332/
+quaxis-miner --test-config --config quaxis.toml
 ```
 
 ## Запуск
 
-### Запуск Bitcoin Core
+### Запуск Quaxis Miner
 
 ```bash
-bitcoind -daemon
-# Проверка
-bitcoin-cli getblockchaininfo
-```
+# Запуск с конфигурацией по умолчанию
+./quaxis-miner
 
-### Запуск Quaxis Server
-
-```bash
-quaxis-server --config ~/.config/quaxis/quaxis.toml
-```
-
-### Systemd сервис
-
-Создайте `/etc/systemd/system/quaxis.service`:
-
-```ini
-[Unit]
-Description=Quaxis Solo Miner Server
-After=network.target bitcoind.service
-Wants=bitcoind.service
-
-[Service]
-Type=simple
-User=quaxis
-Group=quaxis
-ExecStart=/usr/local/bin/quaxis-server --config /etc/quaxis/quaxis.toml
-Restart=always
-RestartSec=10
-
-# Ограничения
-LimitNOFILE=65536
-MemoryMax=4G
-
-# Безопасность
-NoNewPrivileges=yes
-ProtectSystem=strict
-ProtectHome=yes
-ReadWritePaths=/dev/shm /var/log/quaxis
-
-[Install]
-WantedBy=multi-user.target
-```
-
-Активация:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable quaxis
-sudo systemctl start quaxis
-sudo systemctl status quaxis
-```
-
-## Мониторинг
-
-### Логи
-
-```bash
-# Systemd journal
-journalctl -u quaxis -f
-
-# Или файл логов
-tail -f /var/log/quaxis/quaxis.log
-```
-
-### Терминальный вывод статуса
-
-Quaxis Solo Miner предоставляет терминальный вывод статуса в реальном времени.
-Настройки в `[logging]` секции:
-
-```toml
-[logging]
-# Интервал обновления экрана (миллисекунды)
-refresh_interval_ms = 1000
-
-# Уровень логирования: error, warn, info, debug
-level = "info"
-
-# Размер истории событий
-event_history = 200
-
-# Использовать цветной вывод
-color = true
-
-# Показывать хешрейт
-show_hashrate = true
-
-# Подсвечивать найденные блоки
-highlight_found_blocks = true
-
-# Показывать счётчики блоков по chains
-show_chain_block_counts = true
-```
-
-### Проверка Shared Memory
-
-```bash
-# Проверка существования
-ls -la /dev/shm/quaxis_block
-
-# Мониторинг активности
-watch -n 0.1 'cat /dev/shm/quaxis_block | xxd | head'
+# Запуск с указанием файла конфигурации
+./quaxis-miner -c /etc/quaxis/quaxis.toml
 ```

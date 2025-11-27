@@ -184,33 +184,6 @@ cgminer-avalon --read-firmware --output original.bin
 cgminer-avalon --flash-firmware quaxis_firmware.bin
 ```
 
-## Применение патчей Bitcoin Core
-
-### Клонирование Bitcoin Core
-
-```bash
-git clone https://github.com/bitcoin/bitcoin.git
-cd bitcoin
-git checkout v26.0  # Рекомендуемая версия
-```
-
-### Применение патчей
-
-```bash
-cd /path/to/Avalon-miner
-./bitcoin-core-patches/apply-patches.sh /path/to/bitcoin
-```
-
-### Сборка Bitcoin Core
-
-```bash
-cd /path/to/bitcoin
-./autogen.sh
-./configure --without-gui --with-zmq --enable-reduce-exports
-make -j$(nproc)
-sudo make install
-```
-
 ## Проверка установки
 
 ### Проверка сервера
@@ -225,13 +198,6 @@ quaxis-server --check-shani
 ```bash
 # Проверка поддержки CPU
 grep -o 'sha_ni' /proc/cpuinfo | head -1
-```
-
-### Проверка Bitcoin Core с патчами
-
-```bash
-bitcoind --version
-# Должно показать: "Bitcoin Core version vXX.X.X-quaxis"
 ```
 
 ## Типичные проблемы

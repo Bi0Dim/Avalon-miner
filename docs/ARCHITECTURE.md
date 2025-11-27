@@ -2,35 +2,30 @@
 
 ## Обзор системы
 
-Quaxis Solo Miner - однопроцессорная система для соло-майнинга Bitcoin, 
-оптимизированная для минимальной латентности.
+Universal AuxPoW Core - автономная система для соло-майнинга Bitcoin, 
+оптимизированная для минимальной латентности. Работает без внешнего Bitcoin Core.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                         BITCOIN NETWORK                               │
 └────────────────────────────────┬─────────────────────────────────────┘
-                                 │
+                                 │ P2P / FIBRE
                                  ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│                      МОДИФИЦИРОВАННЫЙ BITCOIN CORE                    │
+│                    UNIVERSAL AUXPOW CORE (Self-Contained)            │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────┐  │
-│  │  Validation     │  │  Spy Mining     │  │  Shared Memory      │  │
-│  │                 │──│  Callback       │──│  Bridge             │  │
-│  │  (+ priority)   │  │                 │  │  /quaxis_block      │  │
-│  └─────────────────┘  └─────────────────┘  └──────────┬──────────┘  │
-└───────────────────────────────────────────────────────┼──────────────┘
-                                                        │ ~100 нс
-                                                        ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                      QUAXIS SOLO MINER SERVER                         │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────┐  │
-│  │  SHM Subscriber │  │  Job Manager    │  │  Template Cache     │  │
-│  │  (spin-wait)    │──│  (extranonce)   │──│  (precompute N+1)   │  │
+│  │  Headers Sync   │  │  Template       │  │  MTP Calculator     │  │
+│  │  (P2P/FIBRE)    │──│  Generator      │──│  (last 11 blocks)   │  │
 │  └─────────────────┘  └────────┬────────┘  └─────────────────────┘  │
 │                                │                                      │
 │  ┌─────────────────┐  ┌────────▼────────┐  ┌─────────────────────┐  │
-│  │  Coinbase       │  │  Share          │  │  Stats Collector    │  │
-│  │  Builder        │──│  Validator      │──│                     │  │
+│  │  PoW Validator  │  │  Job Manager    │  │  Template Cache     │  │
+│  │                 │──│  (extranonce)   │──│  (precompute N+1)   │  │
+│  └─────────────────┘  └────────┬────────┘  └─────────────────────┘  │
+│                                │                                      │
+│  ┌─────────────────┐  ┌────────▼────────┐  ┌─────────────────────┐  │
+│  │  Coinbase       │  │  Share          │  │  Status Reporter    │  │
+│  │  Builder        │──│  Validator      │──│  (terminal output)  │  │
 │  │  (+midstate)    │  │                 │  │                     │  │
 │  └─────────────────┘  └─────────────────┘  └─────────────────────┘  │
 │                                │                                      │
@@ -52,13 +47,14 @@ Quaxis Solo Miner - однопроцессорная система для со�
 
 ## Компоненты
 
-### 1. Модифицированный Bitcoin Core
+### 1. Universal AuxPoW Core (Self-Contained)
 
-Стандартный Bitcoin Core с патчами:
+Автономное ядро, работающее без внешнего Bitcoin Core:
 
-- **Shared Memory Bridge**: POSIX shm для уведомлений (~100 нс латентность)
-- **Spy Mining Callback**: Уведомление ДО полной валидации блока
-- **Block Priority**: Приоритет block сообщений в очереди
+- **Headers Sync**: Синхронизация заголовков через P2P/FIBRE
+- **Template Generator**: Внутренняя генерация шаблонов блоков
+- **MTP Calculator**: Вычисление Median Time Past
+- **PoW Validator**: Проверка Proof-of-Work
 
 ### 2. Quaxis Solo Miner Server
 
@@ -66,13 +62,14 @@ C++23 сервер, координирующий майнинг:
 
 | Модуль | Функция |
 |--------|---------|
-| SHM Subscriber | Получение блоков через shared memory |
+| Headers Sync | Синхронизация заголовков через P2P/FIBRE |
+| Template Generator | Генерация шаблонов блоков |
 | Job Manager | Генерация заданий с midstate |
 | Template Cache | Предвычисление шаблона N+1 |
 | Coinbase Builder | Создание coinbase с тегом "quaxis" |
 | Share Validator | Проверка nonce от ASIC |
 | TCP Server | Связь с ASIC по бинарному протоколу |
-| Stats Collector | Мониторинг и статистика |
+| Status Reporter | Терминальный вывод статуса |
 
 ### 3. Прошивка ASIC
 
@@ -88,15 +85,14 @@ C++23 сервер, координирующий майнинг:
 ### Получение нового блока
 
 ```
-1. Bitcoin Core получает block/headers от сети
-2. Quick PoW check (spy mining)
-3. Запись в Shared Memory (/quaxis_block)
-4. Quaxis Server детектирует изменение sequence
-5. Создание coinbase + вычисление midstate
-6. Генерация задания (48 байт)
-7. Отправка на ASIC по TCP
-8. ASIC загружает midstate в чипы
-9. Начало перебора nonce
+1. Headers Sync получает headers от P2P/FIBRE сети
+2. Template Generator создаёт новый шаблон блока
+3. Вычисление MTP+1 для timestamp
+4. Создание coinbase + вычисление midstate
+5. Генерация задания (48 байт)
+6. Отправка на ASIC по TCP
+7. ASIC загружает midstate в чипы
+8. Начало перебора nonce
 ```
 
 ### Нахождение блока
@@ -106,8 +102,7 @@ C++23 сервер, координирующий майнинг:
 2. Отправка share (8 байт) на сервер
 3. Server валидирует share
 4. Сборка полного блока
-5. submitblock через RPC в Bitcoin Core
-6. Bitcoin Core рассылает блок в сеть
+5. Рассылка блока в P2P сеть
 ```
 
 ## Оптимизации
@@ -136,7 +131,7 @@ C++23 сервер, координирующий майнинг:
 
 - CPU: Intel/AMD с SHA-NI (Zen+, Ice Lake+)
 - RAM: 4+ GB
-- SSD: Для Bitcoin Core
+- SSD: Для хранения данных
 - Сеть: 1 Gbps
 
 ### ASIC

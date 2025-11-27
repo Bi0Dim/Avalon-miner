@@ -1,6 +1,6 @@
 # Quaxis Solo Miner
 
-Высокооптимизированный соло-майнер Bitcoin для ASIC Avalon 1126 Pro с интеграцией в модифицированный Bitcoin Core.
+Universal AuxPoW Core — автономный соло-майнер Bitcoin для ASIC Avalon 1126 Pro.
 
 **Язык: C++23** — использует все современные возможности: std::expected, std::format, concepts, ranges.
 
@@ -8,27 +8,26 @@
 
 ## Архитектура
 
+Universal AuxPoW Core работает автономно, без внешних зависимостей от Bitcoin Core.
+Синхронизация заголовков происходит через P2P/FIBRE сеть.
+
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
 │                         BITCOIN NETWORK                               │
 └────────────────────────────────┬─────────────────────────────────────┘
-                                 │
+                                 │ P2P / FIBRE
                                  ▼
 ┌──────────────────────────────────────────────────────────────────────┐
-│                      МОДИФИЦИРОВАННЫЙ BITCOIN CORE                    │
+│                    UNIVERSAL AUXPOW CORE (Self-Contained)            │
 │  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────┐  │
-│  │  Validation     │  │  Spy Mining     │  │  Shared Memory      │  │
-│  │                 │──│  Callback       │──│  Bridge             │  │
-│  │  (+ priority)   │  │                 │  │  /quaxis_block      │  │
-│  └─────────────────┘  └─────────────────┘  └──────────┬──────────┘  │
-└───────────────────────────────────────────────────────┼──────────────┘
-                                                        │ ~100 нс
-                                                        ▼
-┌──────────────────────────────────────────────────────────────────────┐
-│                      QUAXIS SOLO MINER SERVER                         │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────────┐  │
-│  │  SHM Subscriber │  │  Job Manager    │  │  Template Cache     │  │
-│  │  (spin-wait)    │──│  (extranonce)   │──│  (precompute N+1)   │  │
+│  │  Headers Sync   │  │  Template       │  │  MTP Calculator     │  │
+│  │  (P2P/FIBRE)    │──│  Generator      │──│  (last 11 blocks)   │  │
+│  │                 │  │                 │  │                     │  │
+│  └─────────────────┘  └────────┬────────┘  └─────────────────────┘  │
+│                                │                                      │
+│  ┌─────────────────┐  ┌────────▼────────┐  ┌─────────────────────┐  │
+│  │  PoW Validator  │  │  Job Manager    │  │  Template Cache     │  │
+│  │                 │──│  (extranonce)   │──│  (precompute N+1)   │  │
 │  └─────────────────┘  └────────┬────────┘  └─────────────────────┘  │
 │                                │                                      │
 │  ┌─────────────────────────────▼──────────────────────────────────┐  │
@@ -85,12 +84,9 @@
 # Сборка
 ./scripts/build.sh
 
-# Настройка Bitcoin Core с патчами
-./scripts/setup-bitcoin-core.sh --clone /opt/bitcoin
-
 # Настройка конфигурации
 cp config/quaxis.toml.example ~/.config/quaxis/quaxis.toml
-# Отредактируйте: payout_address, rpc_password
+# Отредактируйте: payout_address
 
 # Запуск
 ./scripts/run-server.sh
@@ -103,7 +99,7 @@ cp config/quaxis.toml.example ~/.config/quaxis/quaxis.toml
 - GCC 13+ или Clang 17+ (C++23)
 - CPU с SHA-NI (Intel Skylake+, AMD Zen+)
 - 4+ GB RAM
-- SSD для Bitcoin Core
+- SSD для хранения данных
 
 ### ASIC
 - Avalon 1126 Pro (90+ TH/s)
@@ -117,18 +113,18 @@ Avalon-miner/
 ├── src/
 │   ├── core/                   # Базовые типы, константы, конфигурация
 │   ├── crypto/                 # SHA256 с SHA-NI поддержкой
-│   ├── bitcoin/                # Блоки, coinbase, RPC, Shared Memory
+│   ├── bitcoin/                # Блоки, coinbase, Shared Memory
 │   ├── mining/                 # Задания, валидация, кеш шаблонов
 │   ├── network/                # TCP сервер, бинарный протокол
 │   ├── fallback/               # Система fallback (SHM → ZMQ → Stratum)
 │   ├── log/                    # Терминальный вывод статуса
 │   ├── merged/                 # Merged mining (AuxPoW) для 12 chains
+│   ├── shm/                    # Adaptive spin-wait для SHM
 │   ├── relay/                  # FIBRE/UDP relay
 │   └── main.cpp                # Точка входа
 ├── firmware/                   # Прошивка ASIC (C)
 │   ├── include/                # Заголовочные файлы
 │   └── src/                    # Реализация
-├── bitcoin-core-patches/       # Патчи для Bitcoin Core
 ├── config/                     # Примеры конфигурации
 ├── docs/                       # Документация
 ├── scripts/                    # Скрипты установки и запуска
