@@ -2,8 +2,7 @@
  * @file test_additional_chains.cpp
  * @brief Тесты для дополнительных chain implementations
  * 
- * Тестирует 6 новых chains:
- * - Stacks (STX) — Experimental PoX
+ * Тестирует 5 дополнительных chains:
  * - Myriad (XMY) — Multi-algo
  * - Huntercoin (HUC)
  * - Emercoin (EMC)
@@ -18,48 +17,6 @@
 
 using namespace quaxis;
 using namespace quaxis::merged;
-
-// =============================================================================
-// Stacks Chain Tests
-// =============================================================================
-
-class StacksChainTest : public ::testing::Test {
-protected:
-    ChainConfig config;
-    
-    void SetUp() override {
-        config.name = "stacks";
-        config.enabled = false;  // По умолчанию выключен
-        config.rpc_url = "http://127.0.0.1:20443";
-        config.priority = 85;
-    }
-};
-
-TEST_F(StacksChainTest, CreateChain) {
-    MergedMiningConfig mm_config;
-    mm_config.enabled = true;
-    mm_config.chains.push_back(config);
-    
-    ChainManager manager(mm_config);
-    
-    auto info = manager.get_chain_info("stacks");
-    ASSERT_TRUE(info.has_value());
-    EXPECT_EQ(info->name, "stacks");
-    EXPECT_EQ(info->ticker, "STX");
-}
-
-TEST_F(StacksChainTest, DefaultDisabled) {
-    // Stacks должен быть выключен по умолчанию из-за PoX
-    MergedMiningConfig mm_config;
-    mm_config.enabled = true;
-    config.enabled = false;
-    mm_config.chains.push_back(config);
-    
-    ChainManager manager(mm_config);
-    
-    auto names = manager.get_chain_names();
-    EXPECT_EQ(names.size(), 1u);
-}
 
 // =============================================================================
 // Myriad Chain Tests
@@ -228,14 +185,7 @@ protected:
     void SetUp() override {
         mm_config.enabled = true;
         
-        // Добавляем все 6 новых chains
-        ChainConfig stacks;
-        stacks.name = "stacks";
-        stacks.enabled = false;
-        stacks.rpc_url = "http://127.0.0.1:20443";
-        stacks.priority = 85;
-        mm_config.chains.push_back(stacks);
-        
+        // Добавляем все 5 дополнительных chains
         ChainConfig myriad;
         myriad.name = "myriad";
         myriad.enabled = true;
@@ -277,21 +227,21 @@ TEST_F(AllAdditionalChainsTest, CreateAllChains) {
     ChainManager manager(mm_config);
     
     auto names = manager.get_chain_names();
-    EXPECT_EQ(names.size(), 6u);
+    EXPECT_EQ(names.size(), 5u);
 }
 
 TEST_F(AllAdditionalChainsTest, GetAllChainInfo) {
     ChainManager manager(mm_config);
     
     auto all_info = manager.get_all_chain_info();
-    EXPECT_EQ(all_info.size(), 6u);
+    EXPECT_EQ(all_info.size(), 5u);
     
     // Проверяем что все chains имеют уникальные имена
     std::set<std::string> unique_names;
     for (const auto& info : all_info) {
         unique_names.insert(info.name);
     }
-    EXPECT_EQ(unique_names.size(), 6u);
+    EXPECT_EQ(unique_names.size(), 5u);
 }
 
 TEST_F(AllAdditionalChainsTest, UniqueTickers) {
@@ -304,26 +254,26 @@ TEST_F(AllAdditionalChainsTest, UniqueTickers) {
     for (const auto& info : all_info) {
         unique_tickers.insert(info.ticker);
     }
-    EXPECT_EQ(unique_tickers.size(), 6u);
+    EXPECT_EQ(unique_tickers.size(), 5u);
     
     // Проверяем конкретные тикеры
-    std::set<std::string> expected_tickers = {"STX", "XMY", "HUC", "EMC", "UNO", "TRC"};
+    std::set<std::string> expected_tickers = {"XMY", "HUC", "EMC", "UNO", "TRC"};
     EXPECT_EQ(unique_tickers, expected_tickers);
 }
 
 TEST_F(AllAdditionalChainsTest, EnableDisableChains) {
     ChainManager manager(mm_config);
     
-    // Stacks изначально выключен
-    auto stacks_info = manager.get_chain_info("stacks");
-    ASSERT_TRUE(stacks_info.has_value());
-    
-    // Включаем Stacks
-    bool result = manager.set_chain_enabled("stacks", true);
-    EXPECT_TRUE(result);
+    // Myriad изначально включен
+    auto myriad_info = manager.get_chain_info("myriad");
+    ASSERT_TRUE(myriad_info.has_value());
     
     // Выключаем Myriad
-    result = manager.set_chain_enabled("myriad", false);
+    bool result = manager.set_chain_enabled("myriad", false);
+    EXPECT_TRUE(result);
+    
+    // Включаем Terracoin
+    result = manager.set_chain_enabled("terracoin", true);
     EXPECT_TRUE(result);
 }
 

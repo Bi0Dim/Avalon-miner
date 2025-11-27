@@ -39,7 +39,6 @@ AUXPOW_MAGIC (4 bytes) || AuxMerkleRoot (32 bytes) || TreeSize (4 bytes) || Nonc
 | Elastos | ELA | $3-5 | 20336 |
 | Hathor | HTR | $5-15 | 8080 |
 | VCash | XVC | <$1 | 5739 |
-| Stacks | STX | Experimental* | 20443 |
 | Myriad | XMY | <$1 | 10888 |
 | Huntercoin | HUC | <$1 | 8398 |
 | Emercoin | EMC | $1-3 | 6662 |
@@ -47,9 +46,8 @@ AUXPOW_MAGIC (4 bytes) || AuxMerkleRoot (32 bytes) || TreeSize (4 bytes) || Nonc
 | Terracoin | TRC | <$1 | 13332 |
 
 \* При хешрейте 90 TH/s. Доходность зависит от курса и сложности.
-\* Stacks использует Proof of Transfer (PoX), экспериментальная поддержка.
 
-**Суммарный дополнительный доход: $65-115/месяц (13 монет)**
+**Суммарный дополнительный доход: $60-105/месяц (12 монет)**
 
 ## Конфигурация
 
@@ -162,7 +160,6 @@ src/merged/
 │   ├── elastos_chain.hpp/cpp
 │   ├── hathor_chain.hpp/cpp
 │   ├── vcash_chain.hpp/cpp
-│   ├── stacks_chain.hpp/cpp     # Stacks (STX) — Experimental PoX
 │   ├── myriad_chain.hpp/cpp     # Myriad (XMY) — Multi-algo
 │   ├── huntercoin_chain.hpp/cpp # Huntercoin (HUC)
 │   ├── emercoin_chain.hpp/cpp   # Emercoin (EMC)
@@ -283,20 +280,6 @@ iptables -A INPUT -p tcp --dport 8332 -j DROP
 3. Проверьте сетевые задержки
 
 ## Дополнительные монеты
-
-### Stacks (STX)
-
-**EXPERIMENTAL**: Stacks использует Proof of Transfer (PoX) вместо классического AuxPoW.
-
-```bash
-# Установка Stacks ноды
-# См. https://docs.stacks.co/docs/nodes-and-miners/
-docker run -d stacks/stacks-blockchain
-
-# API порт по умолчанию: 20443
-```
-
-**Примечание**: Требуется дополнительное исследование совместимости.
 
 ### Myriad (XMY)
 
