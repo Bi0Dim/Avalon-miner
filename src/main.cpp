@@ -276,12 +276,12 @@ int main(int argc, char* argv[]) {
     // Создаём TCP сервер
     network::Server server(config.server, job_manager);
     
-    server.set_connected_callback([&status_reporter](const std::string& addr) {
-        status_reporter.log_event(log::EventType::SUBMIT_OK, "ASIC connected: " + addr);
+    server.set_connected_callback([](const std::string& addr) {
+        std::cout << "[INFO] ASIC подключён: " << addr << std::endl;
     });
     
-    server.set_disconnected_callback([&status_reporter](const std::string& addr) {
-        status_reporter.log_event(log::EventType::ERROR, "ASIC disconnected: " + addr);
+    server.set_disconnected_callback([](const std::string& addr) {
+        std::cout << "[INFO] ASIC отключён: " << addr << std::endl;
     });
     
     // Устанавливаем обработчики сигналов
