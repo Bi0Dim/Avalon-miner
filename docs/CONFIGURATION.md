@@ -143,6 +143,47 @@ show_chain_block_counts = true
 | show_chain_block_counts | bool | true | Показывать счётчики |
 | poll_interval_us | int | 100 | Интервал polling |
 
+### Параметры секции [merged_mining]
+
+| Параметр | Тип | По умолчанию | Описание |
+|----------|-----|--------------|----------|
+| enabled | bool | false | Включить merged mining |
+| health_check_interval | int | 60 | Интервал проверки chains (сек) |
+
+### Параметры секции [[merged_mining.chains]]
+
+**КРИТИЧЕСКИ ВАЖНО**: Каждая chain ДОЛЖНА иметь `payout_address`!
+Без адреса награды за найденные блоки будут потеряны.
+
+| Параметр | Тип | По умолчанию | Описание |
+|----------|-----|--------------|----------|
+| name | string | - | Название chain (fractal, namecoin, syscoin, и т.д.) |
+| enabled | bool | true | Включена ли chain |
+| rpc_url | string | - | URL для RPC подключения |
+| rpc_user | string | "" | Имя пользователя RPC |
+| rpc_password | string | "" | Пароль RPC |
+| **payout_address** | string | - | **ОБЯЗАТЕЛЬНО!** Адрес для выплаты награды |
+| priority | int | 50 | Приоритет (выше = важнее) |
+| rpc_timeout | int | 30 | Таймаут RPC (секунды) |
+| update_interval | int | 5 | Интервал обновления шаблона (секунды) |
+
+#### Форматы адресов по chain:
+
+| Chain | Формат адреса | Пример |
+|-------|---------------|--------|
+| Fractal | bc1q... (Bitcoin-like) | `bc1qabc123...` |
+| RSK | 0x... (Ethereum-style) | `0x742d35Cc6634C0532925a3b844Bc9e7595f...` |
+| Syscoin | sys1q... (bech32) | `sys1qabc123def456...` |
+| Namecoin | N... или nc1q... | `N1a2b3c4d5e6f7g8h9...` |
+| Elastos | E... | `E1a2b3c4d5e6f7...` |
+| Hathor | H... | `H1abc123...` |
+| Emercoin | E... | `E1abc...` |
+| Myriad | M... | `M1abc123...` |
+| VCash | V... | `V1abc...` |
+| Huntercoin | H... | `H1abc...` |
+| Unobtanium | u... | `u1abc...` |
+| Terracoin | 1... (legacy) | `1abc123...` |
+
 
 ## Проверка конфигурации
 

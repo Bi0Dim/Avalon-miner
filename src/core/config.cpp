@@ -182,6 +182,57 @@ Result<Config> Config::load(const std::filesystem::path& path) {
             }
         }
         
+        // === Секция [merged_mining] ===
+        if (auto merged = table["merged_mining"].as_table()) {
+            if (auto val = (*merged)["enabled"].value<bool>()) {
+                config.merged_mining.enabled = *val;
+            }
+            if (auto val = (*merged)["health_check_interval"].value<int64_t>()) {
+                config.merged_mining.health_check_interval = static_cast<uint32_t>(*val);
+            }
+            
+            // Парсим chains из [[merged_mining.chains]]
+            if (auto chains = (*merged)["chains"].as_array()) {
+                for (const auto& chain_node : *chains) {
+                    if (auto chain_table = chain_node.as_table()) {
+                        MergedChainConfig chain_config;
+                        
+                        if (auto name = (*chain_table)["name"].value<std::string>()) {
+                            chain_config.name = *name;
+                        }
+                        if (auto enabled = (*chain_table)["enabled"].value<bool>()) {
+                            chain_config.enabled = *enabled;
+                        }
+                        if (auto rpc_url = (*chain_table)["rpc_url"].value<std::string>()) {
+                            chain_config.rpc_url = *rpc_url;
+                        }
+                        if (auto rpc_user = (*chain_table)["rpc_user"].value<std::string>()) {
+                            chain_config.rpc_user = *rpc_user;
+                        }
+                        if (auto rpc_password = (*chain_table)["rpc_password"].value<std::string>()) {
+                            chain_config.rpc_password = *rpc_password;
+                        }
+                        if (auto payout_address = (*chain_table)["payout_address"].value<std::string>()) {
+                            chain_config.payout_address = *payout_address;
+                        }
+                        if (auto priority = (*chain_table)["priority"].value<int64_t>()) {
+                            chain_config.priority = static_cast<uint32_t>(*priority);
+                        }
+                        if (auto rpc_timeout = (*chain_table)["rpc_timeout"].value<int64_t>()) {
+                            chain_config.rpc_timeout = static_cast<uint32_t>(*rpc_timeout);
+                        }
+                        if (auto update_interval = (*chain_table)["update_interval"].value<int64_t>()) {
+                            chain_config.update_interval = static_cast<uint32_t>(*update_interval);
+                        }
+                        
+                        if (!chain_config.name.empty()) {
+                            config.merged_mining.chains.push_back(std::move(chain_config));
+                        }
+                    }
+                }
+            }
+        }
+        
         return config;
         
     } catch (const toml::parse_error& e) {
@@ -281,6 +332,25 @@ Result<void> Config::validate() const {
             ErrorCode::ConfigInvalidValue,
             "Порт сервера не может быть 0"
         );
+    }
+    
+    // Проверка merged mining chains
+    if (merged_mining.enabled) {
+        for (const auto& chain : merged_mining.chains) {
+            if (chain.enabled && chain.payout_address.empty()) {
+                return Err<void>(
+                    ErrorCode::ConfigInvalidValue,
+                    std::format("Не указан payout_address для chain '{}'. "
+                               "Без адреса награды будут потеряны!", chain.name)
+                );
+            }
+            if (chain.enabled && chain.rpc_url.empty()) {
+                return Err<void>(
+                    ErrorCode::ConfigInvalidValue,
+                    std::format("Не указан rpc_url для chain '{}'", chain.name)
+                );
+            }
+        }
     }
     
     return {};

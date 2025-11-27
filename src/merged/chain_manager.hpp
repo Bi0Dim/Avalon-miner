@@ -47,6 +47,16 @@ struct ChainConfig {
     /// @brief Пароль RPC (опционально)
     std::string rpc_password;
     
+    /// @brief Адрес для получения награды за найденный блок
+    /// КРИТИЧЕСКИ ВАЖНО: Без этого адреса награды будут потеряны!
+    /// Формат зависит от chain:
+    /// - Namecoin: N... или nc1q... (bech32)
+    /// - Syscoin: sys1q... (bech32)
+    /// - RSK: 0x... (Ethereum-style)
+    /// - Elastos: E...
+    /// - и т.д.
+    std::string payout_address;
+    
     /// @brief Приоритет (выше = важнее)
     uint32_t priority{50};
     

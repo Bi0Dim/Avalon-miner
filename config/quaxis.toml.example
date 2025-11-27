@@ -271,6 +271,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:8332"
 rpc_user = "quaxis"
 rpc_password = "your_fractal_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш адрес для получения награды!
+# Формат: Fractal Bitcoin использует тот же формат что и Bitcoin
+payout_address = "bc1q..."  # ← Замените на свой Fractal Bitcoin адрес!
 priority = 100
 rpc_timeout = 30
 update_interval = 5
@@ -284,6 +287,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:4444"
 rpc_user = ""
 rpc_password = ""
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш RSK/Ethereum-style адрес!
+# Формат: 0x... (42 символа, checksummed)
+payout_address = "0x..."  # ← Замените на свой RSK адрес!
 priority = 90
 rpc_timeout = 30
 update_interval = 5
@@ -297,6 +303,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:8370"
 rpc_user = "quaxis"
 rpc_password = "your_syscoin_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Syscoin bech32 адрес!
+# Формат: sys1q... (Native SegWit)
+payout_address = "sys1q..."  # ← Замените на свой Syscoin адрес!
 priority = 80
 rpc_timeout = 30
 update_interval = 5
@@ -310,6 +319,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:8336"
 rpc_user = "quaxis"
 rpc_password = "your_namecoin_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Namecoin адрес!
+# Формат: N... (legacy) или nc1q... (bech32)
+payout_address = "N..."  # ← Замените на свой Namecoin адрес!
 priority = 70
 rpc_timeout = 30
 update_interval = 5
@@ -323,6 +335,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:20336"
 rpc_user = "quaxis"
 rpc_password = "your_elastos_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Elastos адрес!
+# Формат: E... (base58 encoded)
+payout_address = "E..."  # ← Замените на свой Elastos адрес!
 priority = 60
 rpc_timeout = 30
 update_interval = 5
@@ -336,6 +351,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:8080"
 rpc_user = ""
 rpc_password = ""
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Hathor адрес!
+# Формат: H... (base58 encoded)
+payout_address = "H..."  # ← Замените на свой Hathor адрес!
 priority = 50
 rpc_timeout = 30
 update_interval = 5
@@ -349,6 +367,9 @@ enabled = false  # Отключено по умолчанию из-за низк
 rpc_url = "http://127.0.0.1:5739"
 rpc_user = "quaxis"
 rpc_password = "your_vcash_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш VCash адрес!
+# Формат: V... (base58 encoded)
+payout_address = "V..."  # ← Замените на свой VCash адрес!
 priority = 10
 rpc_timeout = 30
 update_interval = 5
@@ -366,6 +387,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:10888"
 rpc_user = "quaxis"
 rpc_password = "your_myriad_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Myriad адрес!
+# Формат: M... (base58 encoded)
+payout_address = "M..."  # ← Замените на свой Myriad адрес!
 priority = 40
 rpc_timeout = 30
 update_interval = 5
@@ -379,6 +403,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:8398"
 rpc_user = "quaxis"
 rpc_password = "your_huntercoin_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Huntercoin адрес!
+# Формат: H... (base58 encoded)
+payout_address = "H..."  # ← Замените на свой Huntercoin адрес!
 priority = 30
 rpc_timeout = 30
 update_interval = 5
@@ -392,6 +419,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:6662"
 rpc_user = "quaxis"
 rpc_password = "your_emercoin_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Emercoin адрес!
+# Формат: E... (base58 encoded)
+payout_address = "E..."  # ← Замените на свой Emercoin адрес!
 priority = 50
 rpc_timeout = 30
 update_interval = 5
@@ -405,6 +435,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:65530"
 rpc_user = "quaxis"
 rpc_password = "your_unobtanium_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Unobtanium адрес!
+# Формат: u... (base58 encoded)
+payout_address = "u..."  # ← Замените на свой Unobtanium адрес!
 priority = 35
 rpc_timeout = 30
 update_interval = 5
@@ -418,6 +451,9 @@ enabled = true
 rpc_url = "http://127.0.0.1:13332"
 rpc_user = "quaxis"
 rpc_password = "your_terracoin_rpc_password"
+# КРИТИЧЕСКИ ВАЖНО: Укажите ваш Terracoin адрес!
+# Формат: 1... (legacy base58 encoded)
+payout_address = "1..."  # ← Замените на свой Terracoin адрес!
 priority = 25
 rpc_timeout = 30
 update_interval = 5
