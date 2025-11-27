@@ -1,0 +1,94 @@
+# =============================================================================
+# Quaxis Solo Miner - systemd service file
+# =============================================================================
+# Автоматический запуск и перезапуск майнера
+#
+# Установка:
+#   sudo cp quaxis-miner.service /etc/systemd/system/
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable quaxis-miner
+#   sudo systemctl start quaxis-miner
+#
+# Проверка статуса:
+#   sudo systemctl status quaxis-miner
+#   sudo journalctl -u quaxis-miner -f
+# =============================================================================
+
+[Unit]
+Description=Quaxis Solo Bitcoin Miner
+Documentation=https://github.com/Bi0Dim/Avalon-miner
+After=network.target bitcoind.service
+Wants=bitcoind.service
+
+[Service]
+Type=simple
+User=miner
+Group=miner
+WorkingDirectory=/opt/quaxis
+
+# Путь к исполняемому файлу и конфигурации
+ExecStart=/opt/quaxis/bin/quaxis-miner --config /opt/quaxis/config/quaxis.toml
+
+# Автоматический перезапуск при сбоях
+Restart=always
+RestartSec=5
+
+# Таймаут для watchdog (sd_notify)
+WatchdogSec=30
+
+# Ограничение ресурсов
+LimitNOFILE=65535
+LimitNPROC=4096
+
+# Переменные окружения
+Environment="LD_LIBRARY_PATH=/opt/quaxis/lib"
+
+# =============================================================================
+# Hardening (безопасность)
+# =============================================================================
+
+# Запретить получение новых привилегий
+NoNewPrivileges=true
+
+# Защита системных директорий
+ProtectSystem=strict
+ProtectHome=true
+
+# Разрешить запись только в директорию данных
+ReadWritePaths=/opt/quaxis/data /opt/quaxis/logs
+
+# Приватная /tmp
+PrivateTmp=true
+
+# Запретить доступ к устройствам
+PrivateDevices=true
+
+# Защита ядра
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+
+# Защита control groups
+ProtectControlGroups=true
+
+# Ограничение capabilities
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+
+# Системные вызовы
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# Запретить запись в /usr, /boot, /efi
+ProtectSystem=strict
+
+# Сеть - разрешить только IPv4/IPv6
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+# Логирование
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=quaxis-miner
+
+[Install]
+WantedBy=multi-user.target

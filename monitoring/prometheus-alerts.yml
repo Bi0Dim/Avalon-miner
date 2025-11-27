@@ -1,0 +1,155 @@
+# =============================================================================
+# Quaxis Solo Miner - Prometheus Alert Rules
+# =============================================================================
+# Правила алертов для обнаружения проблем с майнингом
+#
+# Установка:
+#   Скопируйте в /etc/prometheus/rules.d/quaxis.yml
+#   и перезагрузите Prometheus
+# =============================================================================
+
+groups:
+  - name: quaxis_alerts
+    interval: 30s
+    rules:
+      # =========================================================================
+      # Критические алерты
+      # =========================================================================
+      
+      - alert: QuaxisBitcoinDisconnected
+        expr: quaxis_bitcoin_core_connected == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Bitcoin Core disconnected"
+          description: "Quaxis miner lost connection to Bitcoin Core for more than 1 minute."
+      
+      - alert: QuaxisNoASICConnections
+        expr: quaxis_asic_connections == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No ASIC devices connected"
+          description: "No ASIC devices have been connected for more than 2 minutes."
+      
+      - alert: QuaxisInFallbackMode
+        expr: quaxis_mode != 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Miner is in fallback mode"
+          description: "Quaxis miner has been running in fallback mode ({{ $value }}) for more than 5 minutes. Mode 1=ZMQ, 2=Stratum."
+      
+      - alert: QuaxisMinerDown
+        expr: up{job="quaxis"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Quaxis miner is down"
+          description: "Quaxis miner has been unreachable for more than 1 minute."
+      
+      # =========================================================================
+      # Warning алерты
+      # =========================================================================
+      
+      - alert: QuaxisHashrateDropped
+        expr: quaxis_hashrate_ths < 80 and quaxis_hashrate_ths > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Hashrate dropped below 80 TH/s"
+          description: "Current hashrate is {{ $value | printf \"%.1f\" }} TH/s, expected ~90 TH/s."
+      
+      - alert: QuaxisHighLatency
+        expr: rate(quaxis_latency_ms_sum[5m]) / rate(quaxis_latency_ms_count[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High job latency"
+          description: "Average job latency is {{ $value | printf \"%.1f\" }} ms, which may cause stale work."
+      
+      - alert: QuaxisJobsNotSent
+        expr: rate(quaxis_jobs_sent_total[5m]) == 0
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "No jobs being sent"
+          description: "No mining jobs have been sent to ASICs in the last 2 minutes."
+      
+      - alert: QuaxisManyFallbackSwitches
+        expr: increase(quaxis_fallback_switches_total[1h]) > 10
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "Frequent fallback switches"
+          description: "There have been {{ $value }} fallback mode switches in the last hour, indicating connection instability."
+      
+      - alert: QuaxisManyErrors
+        expr: increase(quaxis_errors_total[1h]) > 100
+        for: 0s
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate"
+          description: "There have been {{ $value }} errors in the last hour."
+      
+      # =========================================================================
+      # Информационные алерты
+      # =========================================================================
+      
+      - alert: QuaxisBlockFound
+        expr: increase(quaxis_blocks_found_total[1m]) > 0
+        for: 0s
+        labels:
+          severity: info
+        annotations:
+          summary: "Block found!"
+          description: "A new Bitcoin block has been found! Total blocks: {{ $value }}."
+      
+      - alert: QuaxisMergedBlockFound
+        expr: increase(quaxis_merged_blocks_total[1m]) > 0
+        for: 0s
+        labels:
+          severity: info
+        annotations:
+          summary: "Merged mining block found!"
+          description: "A merged mining block has been found for chain {{ $labels.chain }}."
+      
+      - alert: QuaxisNewASICConnected
+        expr: increase(quaxis_asic_connections[1m]) > 0
+        for: 0s
+        labels:
+          severity: info
+        annotations:
+          summary: "New ASIC connected"
+          description: "A new ASIC device has connected. Total connected: {{ $value }}."
+      
+      # =========================================================================
+      # SLA/Uptime алерты
+      # =========================================================================
+      
+      - alert: QuaxisUptimeLow
+        expr: quaxis_uptime_seconds < 3600 and quaxis_uptime_seconds > 0
+        for: 0s
+        labels:
+          severity: info
+        annotations:
+          summary: "Miner recently restarted"
+          description: "Quaxis miner has been running for only {{ $value | humanizeDuration }}."
+      
+      - alert: QuaxisPrimaryModeRestored
+        expr: changes(quaxis_mode[5m]) > 0 and quaxis_mode == 0
+        for: 0s
+        labels:
+          severity: info
+        annotations:
+          summary: "Primary mode restored"
+          description: "Quaxis miner has switched back to primary SHM mode."

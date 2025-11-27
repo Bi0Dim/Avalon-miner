@@ -163,6 +163,71 @@ prometheus_enabled = false
 prometheus_port = 9090
 
 # =============================================================================
+# Надёжность и Fallback
+# =============================================================================
+# Автоматическое переключение на резервные источники при недоступности
+# основного (SHM → ZMQ → Stratum Pool)
+# =============================================================================
+
+[fallback]
+# Включить систему fallback
+enabled = true
+
+# ZMQ fallback (если SHM недоступен)
+[fallback.zmq]
+enabled = true
+endpoint = "tcp://127.0.0.1:28332"
+
+# Stratum fallback (если Bitcoin Core полностью недоступен)
+[fallback.stratum]
+enabled = true
+url = "stratum+tcp://solo.ckpool.org:3333"
+user = "YOUR_BITCOIN_ADDRESS"
+password = "x"
+
+# Таймауты fallback
+[fallback.timeouts]
+# Интервал проверки здоровья primary источника (миллисекунды)
+primary_health_check_ms = 1000
+# Таймаут primary источника до переключения (миллисекунды)
+primary_timeout_ms = 5000
+# Задержка перед повторным подключением (миллисекунды)
+reconnect_delay_ms = 1000
+
+# =============================================================================
+# HTTP Мониторинг (Health & Metrics)
+# =============================================================================
+# HTTP сервер для health checks и Prometheus метрик
+# =============================================================================
+
+[monitoring.http]
+# Включить HTTP сервер
+enabled = true
+# Адрес для прослушивания
+bind = "0.0.0.0"
+# Порт HTTP сервера
+port = 9090
+
+# Health endpoint
+[monitoring.health]
+enabled = true
+path = "/health"
+
+# Prometheus метрики
+[monitoring.prometheus]
+enabled = true
+path = "/metrics"
+
+# Алерты
+[monitoring.alerts]
+# Минимальный уровень для логирования: info, warning, critical
+log_level = "warning"
+# URL для webhook уведомлений (опционально)
+# webhook_url = "https://your-webhook.com/alert"
+# Интервал дедупликации одинаковых алертов (секунды)
+dedup_interval = 60
+
+# =============================================================================
 # UDP Relay (FIBRE протокол) - Сверхбыстрое получение блоков
 # =============================================================================
 # FIBRE обеспечивает получение блоков за 100-300 мс вместо 500-2000 мс

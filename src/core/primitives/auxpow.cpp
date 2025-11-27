@@ -151,8 +151,9 @@ std::optional<AuxPow> AuxPow::deserialize(ByteSpan data) {
     std::size_t offset = 0;
     
     // Coinbase tx length
-    uint16_t tx_len = static_cast<uint16_t>(data[offset]) |
-                      (static_cast<uint16_t>(data[offset + 1]) << 8);
+    uint16_t low = static_cast<uint16_t>(data[offset]);
+    uint16_t high = static_cast<uint16_t>(data[offset + 1]);
+    uint16_t tx_len = static_cast<uint16_t>(low | (high << 8));
     offset += 2;
     
     if (offset + tx_len > data.size()) {
