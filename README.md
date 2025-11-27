@@ -120,7 +120,10 @@ Avalon-miner/
 │   ├── bitcoin/                # Блоки, coinbase, RPC, Shared Memory
 │   ├── mining/                 # Задания, валидация, кеш шаблонов
 │   ├── network/                # TCP сервер, бинарный протокол
-│   ├── monitoring/             # Статистика
+│   ├── fallback/               # Система fallback (SHM → ZMQ → Stratum)
+│   ├── log/                    # Терминальный вывод статуса
+│   ├── merged/                 # Merged mining (AuxPoW) для 12 chains
+│   ├── relay/                  # FIBRE/UDP relay
 │   └── main.cpp                # Точка входа
 ├── firmware/                   # Прошивка ASIC (C)
 │   ├── include/                # Заголовочные файлы
@@ -131,6 +134,63 @@ Avalon-miner/
 ├── scripts/                    # Скрипты установки и запуска
 └── tests/                      # Тесты и бенчмарки
 ```
+
+## Runtime Status Output
+
+Quaxis Solo Miner предоставляет терминальный вывод статуса в реальном времени:
+
+```
+═══════════════════════════════════════════════════════════════════
+                    QUAXIS SOLO MINER v1.0.0
+═══════════════════════════════════════════════════════════════════
+
+Uptime: 01:23:45
+
+Bitcoin:
+  Height: 850123 (tip age: 45s)
+  Connection: CONNECTED
+
+Hashrate:
+  90.0 TH/s (rated)
+
+ASIC:
+  Connected: 3
+
+Source: SHM (Primary)
+
+SHM:
+  Spin Wait: active
+  Adaptive: enabled
+  CPU Usage: 2.5%
+
+Merged Mining Chains:
+  • namecoin (5 blocks)
+  • syscoin (3 blocks)
+  • rsk (1 block)
+  • fractal
+  • elastos
+
+Recent Events:
+  10:15:30 [NEW_BLOCK] New Bitcoin block at height 850123
+  10:14:22 [AUX_FOUND] Found block at height 600123 (namecoin)
+  10:12:05 [SUBMIT_OK] Share/block submitted (bitcoin)
+───────────────────────────────────────────────────────────────────
+```
+
+## Stacks (STX) Removal
+
+**Note:** Stacks (STX) is NOT supported and has been explicitly removed from this project. Stacks uses Proof of Transfer (PoX), which is fundamentally different from Auxiliary Proof of Work (AuxPoW) used for merged mining. PoX requires STX stacking and is not compatible with traditional Bitcoin mining.
+
+## Fallback System
+
+The miner includes a robust fallback system:
+- **Primary**: Shared Memory (SHM) - ~100ns latency
+- **Fallback 1**: ZMQ - ~1-3ms latency  
+- **Fallback 2**: Stratum pool - last resort
+
+## Adaptive Spin Wait
+
+SHM can use adaptive spin-wait to optimize CPU usage while maintaining low latency.
 
 ## Документация
 

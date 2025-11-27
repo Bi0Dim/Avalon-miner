@@ -73,16 +73,17 @@ spin_wait = true
 # Интервал polling (микросекунды, если spin_wait=false)
 poll_interval_us = 100
 
-[monitoring]
-# Интервал вывода статистики (секунды)
-stats_interval = 60
-# Уровень логирования: trace, debug, info, warn, error
-log_level = "info"
-# Файл логов (пусто = stdout)
-log_file = ""
-# Prometheus endpoint
-prometheus_enabled = false
-prometheus_port = 9090
+[logging]
+# Интервал обновления экрана (миллисекунды)
+refresh_interval_ms = 1000
+# Уровень логирования: error, warn, info, debug
+level = "info"
+# Размер истории событий
+event_history = 200
+# Использовать цветной вывод
+color = true
+# Показывать хешрейт
+show_hashrate = true
 ```
 
 ### Параметры секции [server]
@@ -336,11 +337,33 @@ journalctl -u quaxis -f
 tail -f /var/log/quaxis/quaxis.log
 ```
 
-### Статистика
+### Терминальный вывод статуса
 
-```bash
-# Curl к Prometheus endpoint
-curl http://localhost:9090/metrics
+Quaxis Solo Miner предоставляет терминальный вывод статуса в реальном времени.
+Настройки в `[logging]` секции:
+
+```toml
+[logging]
+# Интервал обновления экрана (миллисекунды)
+refresh_interval_ms = 1000
+
+# Уровень логирования: error, warn, info, debug
+level = "info"
+
+# Размер истории событий
+event_history = 200
+
+# Использовать цветной вывод
+color = true
+
+# Показывать хешрейт
+show_hashrate = true
+
+# Подсвечивать найденные блоки
+highlight_found_blocks = true
+
+# Показывать счётчики блоков по chains
+show_chain_block_counts = true
 ```
 
 ### Проверка Shared Memory

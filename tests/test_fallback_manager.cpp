@@ -214,10 +214,10 @@ TEST(FallbackModeTest, ToString) {
     EXPECT_EQ(fallback::to_string(fallback::FallbackMode::FallbackStratum), "fallback_stratum");
 }
 
-TEST(FallbackModeTest, ToPrometheusValue) {
-    EXPECT_EQ(fallback::to_prometheus_value(fallback::FallbackMode::PrimarySHM), 0);
-    EXPECT_EQ(fallback::to_prometheus_value(fallback::FallbackMode::FallbackZMQ), 1);
-    EXPECT_EQ(fallback::to_prometheus_value(fallback::FallbackMode::FallbackStratum), 2);
+TEST(FallbackModeTest, ToModeValue) {
+    EXPECT_EQ(fallback::to_mode_value(fallback::FallbackMode::PrimarySHM), 0);
+    EXPECT_EQ(fallback::to_mode_value(fallback::FallbackMode::FallbackZMQ), 1);
+    EXPECT_EQ(fallback::to_mode_value(fallback::FallbackMode::FallbackStratum), 2);
 }
 
 } // namespace quaxis::tests

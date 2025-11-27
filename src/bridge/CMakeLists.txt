@@ -16,7 +16,6 @@ target_link_libraries(quaxis_bridge PUBLIC
     quaxis::core
     quaxis::bitcoin
     quaxis::fallback
-    quaxis::monitoring
     Threads::Threads
 )
 

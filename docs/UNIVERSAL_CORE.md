@@ -87,21 +87,26 @@ struct AuxPowParams {
 
 ## Таблица параметров
 
+**Note:** Bitcoin is the parent chain and does not have a chain_id in the AuxPoW context.
+Stacks (STX) is NOT supported — PoX is not AuxPoW.
+
 | Монета | chain_id | port | block_time | consensus |
 |--------|----------|------|------------|-----------|
-| Bitcoin | 0 | 8333 | 600s | PURE_AUXPOW |
+| Bitcoin | - (parent) | 8333 | 600s | - |
 | Namecoin | 1 | 8334 | 600s | PURE_AUXPOW |
-| Syscoin | 57 | 8369 | 150s | AUXPOW_CHAINLOCK |
-| Elastos | custom | 20866 | 120s | AUXPOW_HYBRID_BPOS |
-| Emercoin | 6 | 6661 | 600s | AUXPOW_HYBRID_POS |
-| RSK | 30 | 4444 | 30s | AUXPOW_DECOR |
-| Hathor | custom | 8000 | var | AUXPOW_DAG |
 | VCash | 2 | 5765 | 200s | PURE_AUXPOW |
-| Fractal | custom | 8332 | 600s | PURE_AUXPOW |
 | Myriad | 3 | 10888 | 60s | PURE_AUXPOW |
-| Huntercoin | 2 | 8398 | 60s | PURE_AUXPOW |
-| Unobtanium | 8 | 65534 | 180s | PURE_AUXPOW |
 | Terracoin | 5 | 13332 | 120s | PURE_AUXPOW |
+| Emercoin | 6 | 6661 | 600s | AUXPOW_HYBRID_POS |
+| Unobtanium | 8 | 65534 | 180s | PURE_AUXPOW |
+| Fractal | 10 | 8332 | 600s | PURE_AUXPOW |
+| Hathor | 11 | 8000 | var | AUXPOW_DAG |
+| Huntercoin | 12 | 8398 | 60s | PURE_AUXPOW |
+| Elastos | 13 | 20866 | 120s | AUXPOW_HYBRID_BPOS |
+| RSK | 30 | 4444 | 30s | AUXPOW_DECOR |
+| Syscoin | 57 | 8369 | 150s | AUXPOW_CHAINLOCK |
+
+**Important:** Each chain must have a unique chain_id to avoid Merkle tree slot collisions.
 
 ## Использование
 

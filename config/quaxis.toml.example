@@ -146,21 +146,33 @@ spin_wait = true
 # Интервал polling в микросекундах (если spin_wait = false)
 poll_interval_us = 100
 
-[monitoring]
-# Интервал вывода статистики (секунды)
-# 0 = отключить вывод статистики
-stats_interval = 60
+# =============================================================================
+# Logging — Терминальный вывод статуса
+# =============================================================================
+# Настройки терминального репортёра статуса
+# =============================================================================
 
-# Уровень логирования: trace, debug, info, warn, error
-log_level = "info"
+[logging]
+# Интервал обновления экрана (миллисекунды)
+refresh_interval_ms = 1000
 
-# Файл для логов (пустая строка = вывод в stdout)
-log_file = ""
+# Уровень логирования: error, warn, info, debug
+level = "info"
 
-# Включить Prometheus endpoint для мониторинга
-prometheus_enabled = false
-# Порт для Prometheus endpoint
-prometheus_port = 9090
+# Размер истории событий
+event_history = 200
+
+# Использовать цветной вывод
+color = true
+
+# Показывать хешрейт
+show_hashrate = true
+
+# Подсвечивать найденные блоки
+highlight_found_blocks = true
+
+# Показывать счётчики блоков по chains
+show_chain_block_counts = true
 
 # =============================================================================
 # Надёжность и Fallback
@@ -193,39 +205,6 @@ primary_health_check_ms = 1000
 primary_timeout_ms = 5000
 # Задержка перед повторным подключением (миллисекунды)
 reconnect_delay_ms = 1000
-
-# =============================================================================
-# HTTP Мониторинг (Health & Metrics)
-# =============================================================================
-# HTTP сервер для health checks и Prometheus метрик
-# =============================================================================
-
-[monitoring.http]
-# Включить HTTP сервер
-enabled = true
-# Адрес для прослушивания
-bind = "0.0.0.0"
-# Порт HTTP сервера
-port = 9090
-
-# Health endpoint
-[monitoring.health]
-enabled = true
-path = "/health"
-
-# Prometheus метрики
-[monitoring.prometheus]
-enabled = true
-path = "/metrics"
-
-# Алерты
-[monitoring.alerts]
-# Минимальный уровень для логирования: info, warning, critical
-log_level = "warning"
-# URL для webhook уведомлений (опционально)
-# webhook_url = "https://your-webhook.com/alert"
-# Интервал дедупликации одинаковых алертов (секунды)
-dedup_interval = 60
 
 # =============================================================================
 # UDP Relay (FIBRE протокол) - Сверхбыстрое получение блоков

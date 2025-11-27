@@ -150,16 +150,14 @@ Predictive Maintenance (предиктивное обслуживание) — �
 
 ### Анализ трендов
 
-Система вычисляет тренды для предсказания сбоев:
+Система вычисляет тренды для предсказания сбоев. Концептуальный пример:
 
 ```cpp
-// Предсказание времени до критической температуры
-auto time_to_critical = health_monitor.predict_thermal_critical();
+// Предсказание времени до критической температуры (концептуально)
+auto time_to_critical = predict_thermal_critical(temp_history);
 if (time_to_critical && *time_to_critical < std::chrono::minutes(5)) {
     // Принять превентивные меры
-    alert_manager.create_alert(
-        AlertLevel::Warning,
-        AlertType::TemperatureTrend,
+    log_event(EventType::ERROR,
         "Быстрый рост температуры, критическое состояние через 5 минут"
     );
 }
@@ -185,10 +183,8 @@ restart_cooldown = 300
 
 ### Файлы
 
-- `src/monitoring/health_monitor.hpp` — мониторинг здоровья
-- `src/monitoring/health_monitor.cpp` — реализация
-- `src/monitoring/alert_manager.hpp` — управление алертами
-- `src/monitoring/alert_manager.cpp` — реализация
+- `src/core/chain/` — параметры chains
+- `src/log/status_reporter.hpp` — терминальный вывод статуса
 - `firmware/include/health_reporter.h` — прошивка
 - `firmware/src/health_reporter.c` — реализация
 
