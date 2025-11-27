@@ -12,6 +12,11 @@ add_executable(quaxis_tests
     test_relay.cpp
 )
 
+# Добавление include директории для тестов
+target_include_directories(quaxis_tests PRIVATE
+    ${CMAKE_SOURCE_DIR}/src
+)
+
 # Подключение зависимостей
 target_link_libraries(quaxis_tests PRIVATE
     quaxis_core
@@ -32,6 +37,10 @@ gtest_discover_tests(quaxis_tests)
 if(QUAXIS_ENABLE_BENCHMARKS)
     add_executable(benchmark_shm_vs_zmq
         benchmark_shm_vs_zmq.cpp
+    )
+    
+    target_include_directories(benchmark_shm_vs_zmq PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
     )
     
     target_link_libraries(benchmark_shm_vs_zmq PRIVATE

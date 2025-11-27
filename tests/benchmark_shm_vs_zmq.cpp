@@ -56,9 +56,9 @@ BenchmarkResult calculate_stats(const std::string& name, std::vector<double>& la
     result.name = name;
     result.min_ns = latencies.front();
     result.max_ns = latencies.back();
-    result.avg_ns = std::accumulate(latencies.begin(), latencies.end(), 0.0) / latencies.size();
+    result.avg_ns = std::accumulate(latencies.begin(), latencies.end(), 0.0) / static_cast<double>(latencies.size());
     result.median_ns = latencies[latencies.size() / 2];
-    result.p99_ns = latencies[static_cast<size_t>(latencies.size() * 0.99)];
+    result.p99_ns = latencies[static_cast<size_t>(static_cast<double>(latencies.size()) * 0.99)];
     
     return result;
 }
