@@ -44,7 +44,7 @@ uint32_t MtpCalculator::get_mtp() const {
     std::array<uint32_t, MTP_BLOCK_COUNT> sorted = timestamps_;
     std::sort(sorted.begin(), sorted.end());
     
-    // Медиана - средний элемент (индекс 5 для 11 элементов)
+    // Медиана - средний элемент (индекс MTP_BLOCK_COUNT/2 для нечётного количества)
     return sorted[MTP_BLOCK_COUNT / 2];
 }
 

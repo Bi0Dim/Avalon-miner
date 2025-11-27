@@ -140,12 +140,14 @@ struct TemplateGenerator::Impl {
         }
         
         // Output script - P2WPKH (22 bytes: OP_0 OP_PUSH20 <20-byte-hash>)
-        // For simplicity, we use a placeholder P2WPKH script
-        // In production, this should be derived from payout_address
+        // NOTE: This is a placeholder implementation for template generation only.
+        // The actual mining flow uses bitcoin::CoinbaseBuilder which properly
+        // derives the pubkey hash from the payout_address via bech32 decoding.
+        // This placeholder is sufficient for midstate calculation and job creation.
         coinbase.push_back(0x16);  // Script length
         coinbase.push_back(0x00);  // OP_0
         coinbase.push_back(0x14);  // OP_PUSH20
-        // 20-byte pubkey hash placeholder (should be derived from address)
+        // 20-byte pubkey hash placeholder
         coinbase.insert(coinbase.end(), 20, 0x00);
         
         // Locktime (4 bytes)
@@ -255,27 +257,52 @@ std::optional<BlockTemplate> TemplateGenerator::generate_speculative(
         return std::nullopt;
     }
     
-    // Временно обновляем prev_hash для speculative блока
-    Hash256 old_prev = impl_->prev_hash;
-    uint32_t old_height = impl_->height;
+    // Генерируем speculative шаблон напрямую
+    BlockTemplate tmpl;
+    tmpl.height = impl_->height + 1;  // Следующий блок
+    tmpl.bits = impl_->bits;
+    tmpl.coinbase_value = impl_->coinbase_value;
+    tmpl.is_speculative = true;
     
-    impl_->prev_hash = prev_hash;
-    impl_->height = old_height + 1;
+    // Строим заголовок с новым prev_hash
+    tmpl.header.version = 0x20000000;  // BIP9
+    tmpl.header.prev_hash = prev_hash;
     
-    // Unlock и генерируем
-    impl_->mutex_.unlock();
-    auto result = generate_template(extranonce);
-    impl_->mutex_.lock();
-    
-    // Восстанавливаем
-    impl_->prev_hash = old_prev;
-    impl_->height = old_height;
-    
-    if (result) {
-        result->is_speculative = true;
+    // Timestamp
+    if (impl_->config.use_mtp_timestamp && impl_->mtp_calculator.has_sufficient_data()) {
+        tmpl.header.timestamp = impl_->mtp_calculator.get_min_timestamp();
+    } else {
+        auto now = std::chrono::system_clock::now();
+        tmpl.header.timestamp = static_cast<uint32_t>(
+            std::chrono::duration_cast<std::chrono::seconds>(
+                now.time_since_epoch()
+            ).count()
+        );
     }
     
-    return result;
+    tmpl.header.bits = impl_->bits;
+    tmpl.header.nonce = 0;
+    
+    // Строим coinbase (используем новую высоту)
+    uint32_t old_height = impl_->height;
+    impl_->height = tmpl.height;
+    Bytes coinbase = impl_->build_coinbase(extranonce);
+    impl_->height = old_height;
+    
+    // Для пустого блока merkle root = hash(coinbase)
+    Hash256 coinbase_hash = crypto::sha256d(ByteSpan(coinbase));
+    tmpl.header.merkle_root = coinbase_hash;
+    
+    // Вычисляем midstates
+    if (coinbase.size() >= 64) {
+        tmpl.coinbase_midstate = impl_->compute_midstate_bytes(coinbase.data());
+    }
+    
+    // Header midstate
+    auto header_bytes = tmpl.header.serialize();
+    tmpl.header_midstate = impl_->compute_midstate_bytes(header_bytes.data());
+    
+    return tmpl;
 }
 
 bool TemplateGenerator::is_ready() const {

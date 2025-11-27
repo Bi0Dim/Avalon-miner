@@ -128,7 +128,7 @@ inline void cpu_pause() noexcept {
 #if defined(__x86_64__) || defined(_M_X64) || defined(__i386__) || defined(_M_IX86)
     __builtin_ia32_pause();
 #elif defined(__aarch64__)
-    asm volatile("yield" ::: "memory");
+    __builtin_arm_yield();
 #else
     // Fallback для других архитектур
     std::atomic_thread_fence(std::memory_order_seq_cst);
