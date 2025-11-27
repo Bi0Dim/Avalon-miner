@@ -15,6 +15,10 @@ add_executable(quaxis_tests
     test_chain_manager.cpp
     test_merged_integration.cpp
     test_additional_chains.cpp
+    # Тесты для Universal AuxPoW Core
+    core/test_chain_params.cpp
+    core/test_headers_sync.cpp
+    core/test_auxpow_validator.cpp
     # test_protocol.cpp - Excluded: Protocol API doesn't match test expectations
     # test_coinbase.cpp - Excluded: CoinbaseBuilder API doesn't match test expectations
     # test_relay.cpp - Excluded: Relay API doesn't match test expectations
@@ -29,6 +33,9 @@ target_include_directories(quaxis_tests PRIVATE
 target_link_libraries(quaxis_tests PRIVATE
     quaxis_core
     quaxis_crypto
+    quaxis_primitives
+    quaxis_validation
+    quaxis_sync
     quaxis_bitcoin
     quaxis_mining
     quaxis_network
