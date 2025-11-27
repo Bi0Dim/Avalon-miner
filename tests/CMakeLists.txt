@@ -9,7 +9,6 @@ add_executable(quaxis_tests
     test_block.cpp
     test_target.cpp
     test_version_rolling.cpp
-    test_nonce_distributor.cpp
     test_extranonce_manager.cpp
     test_auxpow.cpp
     test_chain_manager.cpp
@@ -26,6 +25,7 @@ add_executable(quaxis_tests
     # test_protocol.cpp - Excluded: Protocol API doesn't match test expectations
     # test_coinbase.cpp - Excluded: CoinbaseBuilder API doesn't match test expectations
     # test_relay.cpp - Excluded: Relay API doesn't match test expectations
+    # test_nonce_distributor.cpp - REMOVED: NonceDistributor deprecated in favor of ExtrannonceManager
 )
 
 # Добавление include директории для тестов
