@@ -213,6 +213,13 @@ struct Server::Impl {
         conn->set_disconnected_callback([this, addr_copy, conn_ptr, connection_id]() {
             // Unregister connection from JobManager
             job_manager.unregister_connection(connection_id);
+            
+            // Clean up connection ID mapping to prevent memory leak
+            {
+                std::lock_guard<std::mutex> lock(connections_mutex);
+                connection_ids.erase(conn_ptr);
+            }
+            
             on_disconnected(addr_copy);
         });
         

@@ -253,6 +253,13 @@ void JobManager::on_new_block(
     // Each connection has its own extranonce managed by ExtrannonceManager.
     // The template will be updated with connection-specific extranonce
     // when get_next_job_for_connection() is called.
+    //
+    // When a new block arrives:
+    // 1. Old jobs are cleared (above)
+    // 2. New template is stored
+    // 3. Each connection will get a new job with THEIR unique extranonce
+    //    via get_next_job_for_connection() when the Server broadcasts jobs
+    // 4. Extranonces remain stable per-connection across block changes
 }
 
 void JobManager::confirm_speculative_block() {
