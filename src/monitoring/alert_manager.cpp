@@ -110,8 +110,9 @@ uint64_t AlertManager::create_alert_detailed(
     std::lock_guard<std::mutex> lock(impl_->alerts_mutex);
     
     // Проверяем дедупликацию
+    // Возвращаем 0 при дедупликации (валидные ID начинаются с 1)
     if (impl_->should_deduplicate(type)) {
-        return 0;  // Дедуплицировано
+        return 0;
     }
     
     Alert alert;
