@@ -26,8 +26,10 @@ uint8_t ReadStream::read_u8() {
 
 uint16_t ReadStream::read_u16_le() {
     ensure_available(2);
-    uint16_t result = static_cast<uint16_t>(data_[pos_]) |
-                      (static_cast<uint16_t>(data_[pos_ + 1]) << 8);
+    uint16_t result = static_cast<uint16_t>(
+        static_cast<uint16_t>(data_[pos_]) |
+        static_cast<uint16_t>(static_cast<uint16_t>(data_[pos_ + 1]) << 8)
+    );
     pos_ += 2;
     return result;
 }
