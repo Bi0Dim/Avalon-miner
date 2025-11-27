@@ -4,6 +4,7 @@
  */
 
 #include "template_cache.hpp"
+#include "../bitcoin/target.hpp"
 
 #include <cstring>
 

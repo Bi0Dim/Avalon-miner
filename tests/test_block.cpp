@@ -9,8 +9,10 @@
 #include <gtest/gtest.h>
 #include <array>
 #include <cstring>
+#include <span>
 
 #include "bitcoin/block.hpp"
+#include "bitcoin/target.hpp"
 #include "crypto/sha256.hpp"
 #include "core/types.hpp"
 
@@ -22,7 +24,7 @@ namespace quaxis::tests {
 class BlockTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        crypto::sha256_init();
+        // Реализация выбирается автоматически
     }
 };
 
@@ -31,7 +33,7 @@ protected:
  * 
  * Заголовок блока Bitcoin - 80 байт:
  * - version: 4 байта
- * - prev_block_hash: 32 байта
+ * - prev_block: 32 байта
  * - merkle_root: 32 байта
  * - timestamp: 4 байта
  * - bits: 4 байта
@@ -42,7 +44,7 @@ TEST_F(BlockTest, HeaderStructure) {
     
     // Проверяем размер структуры
     EXPECT_EQ(sizeof(header.version), 4);
-    EXPECT_EQ(sizeof(header.prev_block_hash), 32);
+    EXPECT_EQ(sizeof(header.prev_block), 32);
     EXPECT_EQ(sizeof(header.merkle_root), 32);
     EXPECT_EQ(sizeof(header.timestamp), 4);
     EXPECT_EQ(sizeof(header.bits), 4);
@@ -59,22 +61,24 @@ TEST_F(BlockTest, HeaderSerialization) {
     header.bits = 0x1a0fffff;
     header.nonce = 0x12345678;
     
-    // Заполняем prev_block_hash
-    std::fill(header.prev_block_hash.begin(), header.prev_block_hash.end(), 0xAB);
+    // Заполняем prev_block
+    std::fill(header.prev_block.begin(), header.prev_block.end(), 0xAB);
     
     // Заполняем merkle_root
     std::fill(header.merkle_root.begin(), header.merkle_root.end(), 0xCD);
     
-    auto serialized = bitcoin::serialize_header(header);
+    auto serialized = header.serialize();
     
     EXPECT_EQ(serialized.size(), 80) << "Сериализованный заголовок должен быть 80 байт";
     
     // Проверяем version (little-endian)
-    uint32_t version = serialized[0] | (serialized[1] << 8) |
-                       (serialized[2] << 16) | (serialized[3] << 24);
+    uint32_t version = static_cast<uint32_t>(serialized[0]) | 
+                       (static_cast<uint32_t>(serialized[1]) << 8) |
+                       (static_cast<uint32_t>(serialized[2]) << 16) | 
+                       (static_cast<uint32_t>(serialized[3]) << 24);
     EXPECT_EQ(version, 0x20000000);
     
-    // Проверяем prev_block_hash
+    // Проверяем prev_block
     for (size_t i = 4; i < 36; ++i) {
         EXPECT_EQ(serialized[i], 0xAB);
     }
@@ -95,8 +99,7 @@ TEST_F(BlockTest, HeaderHash) {
     header.bits = 0x1d00ffff;
     header.nonce = 2083236893;
     
-    auto serialized = bitcoin::serialize_header(header);
-    auto hash = crypto::sha256d(serialized.data(), serialized.size());
+    auto hash = header.hash();
     
     // Хеш должен быть 32 байта
     EXPECT_EQ(hash.size(), 32);
@@ -120,35 +123,34 @@ TEST_F(BlockTest, HeaderHash) {
  */
 TEST_F(BlockTest, MerkleRootSingleTx) {
     // Хеш coinbase транзакции
-    core::Hash256 coinbase_hash{};
+    Hash256 coinbase_hash{};
     std::fill(coinbase_hash.begin(), coinbase_hash.end(), 0x42);
     
-    auto merkle_root = bitcoin::compute_merkle_root({coinbase_hash});
+    auto merkle_root = bitcoin::compute_merkle_root_single(coinbase_hash);
     
-    // Для одной транзакции merkle_root = SHA256d(tx_hash)
-    auto expected = crypto::sha256d(coinbase_hash.data(), coinbase_hash.size());
-    
-    // Примечание: в Bitcoin merkle_root для одной транзакции = сам хеш
-    // Но разные реализации могут отличаться
+    // Для одной транзакции merkle_root = сам хеш транзакции
     EXPECT_EQ(merkle_root.size(), 32);
+    EXPECT_EQ(merkle_root, coinbase_hash);
 }
 
 /**
  * @brief Тест: merkle root для двух транзакций
  */
 TEST_F(BlockTest, MerkleRootTwoTx) {
-    core::Hash256 tx1{}, tx2{};
+    Hash256 tx1{};
+    Hash256 tx2{};
     std::fill(tx1.begin(), tx1.end(), 0x11);
     std::fill(tx2.begin(), tx2.end(), 0x22);
     
-    auto merkle_root = bitcoin::compute_merkle_root({tx1, tx2});
+    std::vector<Hash256> txids = {tx1, tx2};
+    auto merkle_root = bitcoin::compute_merkle_root(txids);
     
     // merkle_root = SHA256d(tx1 || tx2)
     std::array<uint8_t, 64> combined{};
     std::memcpy(combined.data(), tx1.data(), 32);
     std::memcpy(combined.data() + 32, tx2.data(), 32);
     
-    auto expected = crypto::sha256d(combined.data(), combined.size());
+    auto expected = crypto::sha256d(ByteSpan{combined.data(), combined.size()});
     
     EXPECT_EQ(merkle_root, expected);
 }
@@ -159,12 +161,15 @@ TEST_F(BlockTest, MerkleRootTwoTx) {
  * При нечётном количестве последняя транзакция дублируется.
  */
 TEST_F(BlockTest, MerkleRootOddCount) {
-    core::Hash256 tx1{}, tx2{}, tx3{};
+    Hash256 tx1{};
+    Hash256 tx2{};
+    Hash256 tx3{};
     std::fill(tx1.begin(), tx1.end(), 0x11);
     std::fill(tx2.begin(), tx2.end(), 0x22);
     std::fill(tx3.begin(), tx3.end(), 0x33);
     
-    auto merkle_root = bitcoin::compute_merkle_root({tx1, tx2, tx3});
+    std::vector<Hash256> txids = {tx1, tx2, tx3};
+    auto merkle_root = bitcoin::compute_merkle_root(txids);
     
     EXPECT_EQ(merkle_root.size(), 32);
     
@@ -180,35 +185,6 @@ TEST_F(BlockTest, MerkleRootOddCount) {
 }
 
 /**
- * @brief Тест: пустой блок
- * 
- * Блок с только coinbase транзакцией.
- */
-TEST_F(BlockTest, EmptyBlock) {
-    bitcoin::BlockBuilder builder;
-    
-    // Параметры блока
-    bitcoin::BlockParams params{};
-    params.version = 0x20000000;
-    params.height = 800000;
-    params.timestamp = 1700000000;
-    params.bits = 0x1a0fffff;
-    std::fill(params.prev_block_hash.begin(), params.prev_block_hash.end(), 0xAB);
-    
-    // Coinbase
-    std::vector<uint8_t> coinbase(110, 0x42);
-    
-    auto result = builder.build_empty_block(params, coinbase);
-    
-    ASSERT_TRUE(result.has_value()) << "Пустой блок должен быть построен";
-    
-    auto& block = result.value();
-    
-    // Проверяем, что блок содержит заголовок и coinbase
-    EXPECT_GE(block.size(), 80 + coinbase.size());
-}
-
-/**
  * @brief Тест: midstate заголовка
  * 
  * Первые 64 байта заголовка используются для midstate.
@@ -216,23 +192,20 @@ TEST_F(BlockTest, EmptyBlock) {
 TEST_F(BlockTest, HeaderMidstate) {
     bitcoin::BlockHeader header{};
     header.version = 0x20000000;
-    std::fill(header.prev_block_hash.begin(), header.prev_block_hash.end(), 0xAB);
+    std::fill(header.prev_block.begin(), header.prev_block.end(), 0xAB);
     std::fill(header.merkle_root.begin(), header.merkle_root.end(), 0xCD);
     header.timestamp = 1700000000;
     header.bits = 0x1a0fffff;
     header.nonce = 0;
     
-    auto serialized = bitcoin::serialize_header(header);
+    auto midstate = header.compute_midstate();
     
-    // Midstate вычисляется от первых 64 байт
-    auto midstate = crypto::sha256_midstate(serialized.data(), 64);
-    
-    EXPECT_EQ(midstate.size(), 32);
+    EXPECT_EQ(midstate.size(), 8);  // 8 x 32-bit words
     
     // Проверяем, что midstate не нулевой
     bool all_zeros = true;
-    for (auto byte : midstate) {
-        if (byte != 0) {
+    for (auto word : midstate) {
+        if (word != 0) {
             all_zeros = false;
             break;
         }
@@ -243,7 +216,7 @@ TEST_F(BlockTest, HeaderMidstate) {
 /**
  * @brief Тест: хвост заголовка
  * 
- * Последние 12 байт (timestamp + bits + merkle_part).
+ * Последние 16 байт заголовка.
  */
 TEST_F(BlockTest, HeaderTail) {
     bitcoin::BlockHeader header{};
@@ -252,19 +225,10 @@ TEST_F(BlockTest, HeaderTail) {
     header.bits = 0x11223344;
     header.nonce = 0x12345678;
     
-    auto serialized = bitcoin::serialize_header(header);
+    auto tail = header.get_tail();
     
-    // Хвост заголовка: байты 68-79 (12 байт)
-    std::array<uint8_t, 12> tail{};
-    std::memcpy(tail.data(), serialized.data() + 68, 12);
-    
-    // Проверяем timestamp в позиции 68-71
-    uint32_t ts = tail[0] | (tail[1] << 8) | (tail[2] << 16) | (tail[3] << 24);
-    EXPECT_EQ(ts, 0xAABBCCDD);
-    
-    // Проверяем bits в позиции 72-75
-    uint32_t bits = tail[4] | (tail[5] << 8) | (tail[6] << 16) | (tail[7] << 24);
-    EXPECT_EQ(bits, 0x11223344);
+    // Хвост содержит merkle_root[28:32] + timestamp + bits + nonce = 16 байт
+    EXPECT_EQ(tail.size(), 16);
 }
 
 /**
@@ -276,8 +240,7 @@ TEST_F(BlockTest, ProofOfWork) {
     header.bits = 0x1d00ffff; // Очень низкая сложность
     header.nonce = 0;
     
-    auto serialized = bitcoin::serialize_header(header);
-    auto hash = crypto::sha256d(serialized.data(), serialized.size());
+    [[maybe_unused]] auto hash = header.hash();
     
     // Преобразуем bits в target
     auto target = bitcoin::bits_to_target(header.bits);

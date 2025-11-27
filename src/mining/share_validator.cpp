@@ -7,6 +7,7 @@
 #include "../bitcoin/target.hpp"
 #include "../core/byte_order.hpp"
 
+#include <atomic>
 #include <set>
 #include <mutex>
 

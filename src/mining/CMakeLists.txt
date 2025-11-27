@@ -1,13 +1,15 @@
 # =============================================================================
 # Quaxis Solo Miner - Mining модуль
 # =============================================================================
-# Управление заданиями и валидация шар
+# Управление заданиями, валидация шар и оптимизации
 # =============================================================================
 
 add_library(quaxis_mining STATIC
     job_manager.cpp
     template_cache.cpp
     share_validator.cpp
+    version_rolling.cpp
+    nonce_distributor.cpp
 )
 
 target_include_directories(quaxis_mining PUBLIC

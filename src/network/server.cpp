@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <cstring>
 
 #include <thread>
 #include <mutex>
@@ -246,7 +247,7 @@ struct Server::Impl {
         }
     }
     
-    void on_share_received(const mining::Share& share) {
+    void on_share_received(const mining::Share& /*share*/) {
         std::lock_guard<std::mutex> lock(stats_mutex);
         stats.total_shares++;
         
