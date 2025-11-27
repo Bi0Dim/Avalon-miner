@@ -290,7 +290,7 @@ int main(int argc, char* argv[]) {
         auto now = std::chrono::steady_clock::now();
         data.uptime = std::chrono::duration_cast<std::chrono::seconds>(now - start_time);
         data.fallback_active = false;
-        data.hashrate_ths = 0.0; // TODO: получить от ASIC
+        data.hashrate_ths = 0.0; // TODO: get from ASIC
         data.asic_connections = static_cast<uint32_t>(server.connection_count());
         data.btc_height = current_height;
         data.tip_age_ms = 0;

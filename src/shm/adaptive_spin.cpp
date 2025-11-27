@@ -11,6 +11,28 @@
 namespace quaxis::shm {
 
 // =============================================================================
+// Helper: CPU pause hint for spin-wait
+// =============================================================================
+
+namespace {
+
+/**
+ * @brief CPU hint for spin-wait loop
+ * 
+ * Reduces CPU power consumption during spin-wait by hinting
+ * to the processor that we're in a spin loop.
+ */
+inline void cpu_pause_hint() noexcept {
+#if defined(__x86_64__) || defined(__i386__)
+    __builtin_ia32_pause();
+#elif defined(__aarch64__)
+    asm volatile("yield" ::: "memory");
+#endif
+}
+
+} // anonymous namespace
+
+// =============================================================================
 // Реализация
 // =============================================================================
 
@@ -78,12 +100,7 @@ struct AdaptiveSpin::Impl {
                 ++spin_count;
                 spin_iterations.fetch_add(1, std::memory_order_relaxed);
                 
-                // CPU hint для spin-wait
-                #if defined(__x86_64__) || defined(__i386__)
-                    __builtin_ia32_pause();
-                #elif defined(__aarch64__)
-                    asm volatile("yield" ::: "memory");
-                #endif
+                cpu_pause_hint();
             } else if (yield_count_local < config.yield_iterations) {
                 // Фаза 2: Yield
                 ++yield_count_local;
@@ -145,11 +162,7 @@ struct AdaptiveSpin::Impl {
                 return false;
             }
             
-            #if defined(__x86_64__) || defined(__i386__)
-                __builtin_ia32_pause();
-            #elif defined(__aarch64__)
-                asm volatile("yield" ::: "memory");
-            #endif
+            cpu_pause_hint();
         }
     }
     
