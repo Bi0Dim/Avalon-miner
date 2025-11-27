@@ -19,7 +19,6 @@ add_library(quaxis_merged STATIC
     chains/hathor_chain.cpp
     chains/vcash_chain.cpp
     # Дополнительные chains
-    chains/stacks_chain.cpp
     chains/myriad_chain.cpp
     chains/huntercoin_chain.cpp
     chains/emercoin_chain.cpp

@@ -13,7 +13,6 @@
 #include "chains/hathor_chain.hpp"
 #include "chains/vcash_chain.hpp"
 // Дополнительные chains
-#include "chains/stacks_chain.hpp"
 #include "chains/myriad_chain.hpp"
 #include "chains/huntercoin_chain.hpp"
 #include "chains/emercoin_chain.hpp"
@@ -58,9 +57,6 @@ std::unique_ptr<IChain> create_chain(const ChainConfig& config) {
         return std::make_unique<VCashChain>(config);
     }
     // Дополнительные chains
-    if (config.name == "stacks") {
-        return std::make_unique<StacksChain>(config);
-    }
     if (config.name == "myriad") {
         return std::make_unique<MyriadChain>(config);
     }
