@@ -90,7 +90,12 @@ BenchmarkResult benchmark_spin_wait(int iterations) {
         return {"spin-wait", 0, 0, 0, 0, 0};
     }
     
-    ftruncate(fd, sizeof(TestSharedBlock));
+    if (ftruncate(fd, sizeof(TestSharedBlock)) < 0) {
+        std::cerr << "Ошибка ftruncate" << std::endl;
+        close(fd);
+        shm_unlink(shm_name);
+        return {"spin-wait", 0, 0, 0, 0, 0};
+    }
     
     auto* shm = static_cast<TestSharedBlock*>(
         mmap(nullptr, sizeof(TestSharedBlock), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)
@@ -176,7 +181,11 @@ BenchmarkResult benchmark_poll(int iterations, int poll_interval_us) {
         return {"poll", 0, 0, 0, 0, 0};
     }
     
-    ftruncate(fd, sizeof(TestSharedBlock));
+    if (ftruncate(fd, sizeof(TestSharedBlock)) < 0) {
+        close(fd);
+        shm_unlink(shm_name);
+        return {"poll", 0, 0, 0, 0, 0};
+    }
     
     auto* shm = static_cast<TestSharedBlock*>(
         mmap(nullptr, sizeof(TestSharedBlock), PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0)
