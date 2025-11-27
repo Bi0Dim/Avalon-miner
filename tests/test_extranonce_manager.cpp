@@ -7,6 +7,7 @@
  */
 
 #include <gtest/gtest.h>
+#include <algorithm>
 #include "mining/extranonce_manager.hpp"
 
 namespace quaxis::tests {
