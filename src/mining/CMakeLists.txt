@@ -9,7 +9,6 @@ add_library(quaxis_mining STATIC
     template_cache.cpp
     share_validator.cpp
     version_rolling.cpp
-    nonce_distributor.cpp
     extranonce_manager.cpp
 )
 

@@ -1,6 +1,9 @@
 /**
  * @file server.cpp
  * @brief Реализация TCP сервера для ASIC
+ * 
+ * Integrates with JobManager's per-connection extranonce management
+ * to ensure each ASIC connection has unique work.
  */
 
 #include "server.hpp"
@@ -17,6 +20,7 @@
 #include <mutex>
 #include <atomic>
 #include <list>
+#include <unordered_map>
 #include <format>
 
 namespace quaxis::network {
@@ -33,6 +37,11 @@ struct Server::Impl {
     
     mutable std::mutex connections_mutex;
     std::list<std::unique_ptr<AsicConnection>> connections;
+    
+    // Connection ID counter for unique per-connection identification
+    std::atomic<uint32_t> next_connection_id{1};
+    // Map connection pointer to connection ID for unregistration
+    std::unordered_map<AsicConnection*, uint32_t> connection_ids;
     
     AsicConnectedCallback connected_callback;
     AsicDisconnectedCallback disconnected_callback;
@@ -178,8 +187,21 @@ struct Server::Impl {
                                               addr_str, 
                                               ntohs(client_addr.sin_port));
         
+        // Get a unique connection ID for ExtrannonceManager
+        uint32_t connection_id = next_connection_id.fetch_add(1, std::memory_order_relaxed);
+        
+        // Register connection with JobManager to get unique extranonce
+        job_manager.register_connection(connection_id);
+        
         // Создаём соединение
         auto conn = std::make_unique<AsicConnection>(client_fd, remote_addr);
+        AsicConnection* conn_ptr = conn.get();
+        
+        // Store connection ID mapping
+        {
+            std::lock_guard<std::mutex> lock(connections_mutex);
+            connection_ids[conn_ptr] = connection_id;
+        }
         
         // Устанавливаем callbacks
         std::string addr_copy = remote_addr;
@@ -188,7 +210,16 @@ struct Server::Impl {
             on_share_received(share);
         });
         
-        conn->set_disconnected_callback([this, addr_copy]() {
+        conn->set_disconnected_callback([this, addr_copy, conn_ptr, connection_id]() {
+            // Unregister connection from JobManager
+            job_manager.unregister_connection(connection_id);
+            
+            // Clean up connection ID mapping to prevent memory leak
+            {
+                std::lock_guard<std::mutex> lock(connections_mutex);
+                connection_ids.erase(conn_ptr);
+            }
+            
             on_disconnected(addr_copy);
         });
         
@@ -212,8 +243,8 @@ struct Server::Impl {
             connected_callback(remote_addr);
         }
         
-        // Отправляем текущее задание новому ASIC
-        if (auto job = job_manager.get_next_job()) {
+        // Send job with this connection's unique extranonce
+        if (auto job = job_manager.get_next_job_for_connection(connection_id)) {
             std::lock_guard<std::mutex> lock(connections_mutex);
             if (!connections.empty()) {
                 connections.back()->send_job(*job);

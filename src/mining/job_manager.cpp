@@ -1,9 +1,13 @@
 /**
  * @file job_manager.cpp
  * @brief Реализация менеджера заданий
+ * 
+ * IMPORTANT: Uses ExtrannonceManager for per-ASIC connection extranonce
+ * management to prevent duplicate work across connections.
  */
 
 #include "job_manager.hpp"
+#include "extranonce_manager.hpp"
 #include "../core/byte_order.hpp"
 
 #include <algorithm>
@@ -119,6 +123,9 @@ struct JobManager::Impl {
     
     mutable std::mutex mutex;
     
+    // Per-connection extranonce management
+    ExtrannonceManager extranonce_manager;
+    
     // Текущий шаблон блока
     std::optional<bitcoin::BlockTemplate> current_template;
     bool is_speculative = false;
@@ -128,11 +135,11 @@ struct JobManager::Impl {
     
     // Счётчики
     uint32_t next_job_id = 1;
-    uint64_t current_extranonce = 0;
     
     Impl(const MiningConfig& cfg, bitcoin::CoinbaseBuilder builder)
         : config(cfg)
         , coinbase_builder(std::move(builder))
+        , extranonce_manager(1)  // Start extranonces from 1
     {}
     
     void clear_jobs() {
@@ -172,6 +179,52 @@ struct JobManager::Impl {
         
         return job;
     }
+    
+    /**
+     * @brief Create a job with a specific extranonce
+     * 
+     * This updates the template with the given extranonce and creates a job.
+     * Used for per-connection job creation.
+     * 
+     * @param extranonce The extranonce value for this job
+     * @return Job The created job
+     */
+    Job create_job_with_extranonce(uint64_t extranonce) {
+        if (!current_template) {
+            return {};
+        }
+        
+        // Create a copy of the template and update it with this extranonce
+        auto updated_template = *current_template;
+        updated_template.update_extranonce(extranonce);
+        
+        Job job;
+        job.job_id = next_job_id++;
+        job.midstate = updated_template.header_midstate;
+        job.timestamp = updated_template.header.timestamp;
+        job.bits = updated_template.header.bits;
+        job.nonce = 0;
+        job.height = updated_template.height;
+        job.target = updated_template.target;
+        job.is_speculative = is_speculative;
+        job.created_at = std::chrono::steady_clock::now();
+        
+        // Store the job
+        jobs[job.job_id] = job;
+        
+        // Limit job count
+        if (jobs.size() > config.job_queue_size) {
+            auto oldest = std::min_element(jobs.begin(), jobs.end(),
+                [](const auto& a, const auto& b) {
+                    return a.second.job_id < b.second.job_id;
+                });
+            if (oldest != jobs.end()) {
+                jobs.erase(oldest);
+            }
+        }
+        
+        return job;
+    }
 };
 
 JobManager::JobManager(
@@ -196,16 +249,17 @@ void JobManager::on_new_block(
     impl_->current_template = block_template;
     impl_->is_speculative = is_speculative;
     
-    // Инкрементируем extranonce при каждом новом блоке.
-    // Примечание: уникальность хешей обеспечивается через extranonce,
-    // который инкрементируется при получении каждого нового блока.
-    // Разделение пространства nonce между ASIC НЕ используется —
-    // каждое соединение работает с полным пространством nonce (2^32),
-    // а extranonce гарантирует уникальность между соединениями.
-    impl_->current_extranonce++;
-    
-    // Обновляем шаблон с новым extranonce
-    impl_->current_template->update_extranonce(impl_->current_extranonce);
+    // NOTE: Do NOT increment a global extranonce here!
+    // Each connection has its own extranonce managed by ExtrannonceManager.
+    // The template will be updated with connection-specific extranonce
+    // when get_next_job_for_connection() is called.
+    //
+    // When a new block arrives:
+    // 1. Old jobs are cleared (above)
+    // 2. New template is stored
+    // 3. Each connection will get a new job with THEIR unique extranonce
+    //    via get_next_job_for_connection() when the Server broadcasts jobs
+    // 4. Extranonces remain stable per-connection across block changes
 }
 
 void JobManager::confirm_speculative_block() {
@@ -249,6 +303,30 @@ std::optional<Job> JobManager::get_next_job() {
     return job;
 }
 
+std::optional<Job> JobManager::get_next_job_for_connection(uint32_t connection_id) {
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    
+    if (!impl_->current_template) {
+        return std::nullopt;
+    }
+    
+    // Get this connection's unique extranonce
+    auto extranonce = impl_->extranonce_manager.get_extranonce(connection_id);
+    if (!extranonce) {
+        return std::nullopt;  // Connection not registered
+    }
+    
+    // Create job with THIS connection's extranonce
+    Job job = impl_->create_job_with_extranonce(*extranonce);
+    
+    // Call callback
+    if (impl_->new_job_callback) {
+        impl_->new_job_callback(job);
+    }
+    
+    return job;
+}
+
 std::optional<Job> JobManager::get_job(uint32_t job_id) const {
     std::lock_guard<std::mutex> lock(impl_->mutex);
     
@@ -257,6 +335,30 @@ std::optional<Job> JobManager::get_job(uint32_t job_id) const {
         return it->second;
     }
     return std::nullopt;
+}
+
+// =========================================================================
+// Connection Management (ExtrannonceManager integration)
+// =========================================================================
+
+uint64_t JobManager::register_connection(uint32_t connection_id) {
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    return impl_->extranonce_manager.assign_extranonce(connection_id);
+}
+
+void JobManager::unregister_connection(uint32_t connection_id) {
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    impl_->extranonce_manager.release_extranonce(connection_id);
+}
+
+std::optional<uint64_t> JobManager::get_connection_extranonce(uint32_t connection_id) const {
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    return impl_->extranonce_manager.get_extranonce(connection_id);
+}
+
+std::size_t JobManager::active_connection_count() const {
+    std::lock_guard<std::mutex> lock(impl_->mutex);
+    return impl_->extranonce_manager.active_count();
 }
 
 void JobManager::set_new_job_callback(NewJobCallback callback) {
@@ -276,7 +378,8 @@ std::size_t JobManager::active_job_count() const {
 
 uint64_t JobManager::current_extranonce() const {
     std::lock_guard<std::mutex> lock(impl_->mutex);
-    return impl_->current_extranonce;
+    // Returns the next extranonce that will be assigned
+    return impl_->extranonce_manager.peek_next_extranonce();
 }
 
 uint32_t JobManager::current_height() const {
